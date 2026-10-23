@@ -1,0 +1,881 @@
+/* Farben aus dem Figma-Entwurf, Maße auf die Größe der nativen InDesign-Panels verkleinert (Faktor 11/14). */
+:root {
+  --text: #ececec;
+  --text-muted: #c4c4c4;
+  --text-dim: #9a9a9a;
+  --line: #bdbdbd;
+  --divider: #666666;
+  --field: #3b3b3b;
+  --field-border: #6b6b6b;
+  --toggle: #1f1f1f;
+  --toggle-off: #575757;
+  --toggle-on: #ffffff;
+  --blue: #1e96f0;
+  --red: #e8202a;
+  --green: #16a51d;
+  --danger: #ff6b6b;
+  --light: #e8e8e8;
+  --on-light: #111111;
+}
+
+/* Helle InDesign-Oberflächen („Hell“, „Am hellsten“). Die Klasse setzt index.js an der Panel-Wurzel über document.theme. */
+.panel-root.light-theme {
+  --text: #1f1f1f;
+  --text-muted: #4a4a4a;
+  --text-dim: #6e6e6e;
+  --line: #8c8c8c;
+  --divider: #b5b5b5;
+  --field: #ffffff;
+  --field-border: #a3a3a3;
+  --toggle: #d6d6d6;
+  --toggle-off: #a8a8a8;
+  --toggle-on: #1f1f1f;
+  --red: #d01219;
+  --green: #11841a;
+  --danger: #c62828;
+  --light: #3a3a3a;
+  --on-light: #ffffff;
+}
+
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  font-family: Inter, "Adobe Clean", -apple-system, sans-serif;
+  font-size: 11px;
+}
+
+.panel-root {
+  height: 100%;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 12.5px;
+  box-sizing: border-box;
+}
+
+.screen.visible {
+  display: flex;
+}
+
+/* ---------- Willkommen ---------- */
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 37.5px;
+}
+
+.logo {
+  width: 205px;
+  height: 51px;
+}
+
+.welcome-title {
+  margin-top: 118px;
+  font-size: 19.5px;
+  font-weight: 300;
+  color: var(--text);
+}
+
+.btn-pill {
+  margin-top: 31.5px;
+  width: 146px;
+  height: 34.5px;
+  line-height: 34.5px;
+  border-radius: 17.5px;
+  background-color: var(--light);
+  color: var(--on-light);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ---------- Formulare ---------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6.5px;
+}
+
+.form-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  margin-bottom: 4.5px;
+}
+
+.form-text {
+  color: var(--text-muted);
+  margin-bottom: 9.5px;
+}
+
+.field-label {
+  margin-top: 9.5px;
+  margin-bottom: 3px;
+  font-weight: 700;
+  font-size: 9.5px;
+  color: var(--text);
+}
+
+/* Native Eingabefelder: InDesign zeichnet sie selbst, so sitzt der Text korrekt mittig. */
+.field {
+  width: 100%;
+  margin: 0;
+}
+
+.field-hint {
+  margin-top: 3px;
+  font-size: 8.5px;
+  color: var(--text-dim);
+}
+
+.btn-primary {
+  margin-top: 15.5px;
+  height: 28.5px;
+  line-height: 28.5px;
+  border-radius: 6.5px;
+  background-color: var(--blue);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-primary.disabled,
+.btn-check.disabled {
+  opacity: 0.5;
+}
+
+.notice {
+  display: none;
+  margin-top: 6.5px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.notice.visible {
+  display: block;
+}
+
+.notice.error {
+  color: var(--danger);
+}
+
+/* ---------- Kopfbereich ---------- */
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.collapse-toggle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chevron {
+  width: 11px;
+  height: 11px;
+  margin-right: 8px;
+}
+
+.icon-button {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+/* ---------- Funktionen ---------- */
+
+.functions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 9.5px;
+  flex-shrink: 0;
+}
+
+.functions.collapsed {
+  display: none;
+}
+
+/* Alles bleibt nebeneinander. Wird das Panel zu schmal, werden die Checkbox-Texte mit … gekürzt. */
+.checks {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.check-row span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.check-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 22px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.toggle {
+  width: 15.5px;
+  height: 15.5px;
+  margin-right: 9.5px;
+  border-radius: 4px;
+  background-color: var(--toggle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5.5px;
+  background-color: var(--toggle-off);
+}
+
+.check-row input {
+  margin: 0 8px 0 0;
+}
+
+.range {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.range-title {
+  font-weight: 700;
+  height: 22px;
+  line-height: 22px;
+  font-size: 11px;
+  text-align: right;
+}
+
+/* Breit genug für zwei- bis dreistellige Seitenzahlen. */
+.page-input {
+  width: 38px;
+  margin: 0 0 3px;
+}
+
+/* ---------- Prüfen-Button ---------- */
+
+.btn-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12.5px;
+  height: 33px;
+  border-radius: 8px;
+  background-color: var(--blue);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.check-icon {
+  width: 20.5px;
+  height: 20.5px;
+  margin-right: 8px;
+}
+
+/* ---------- Reiter ---------- */
+
+.tabs {
+  display: flex;
+  flex-direction: row;
+  margin-top: 11px;
+  flex-shrink: 0;
+}
+
+.tab {
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 3px;
+  margin-right: 14px;
+  padding: 4.5px 3px;
+  font-size: 11px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tab-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.tab-icon img {
+  width: 11px;
+  height: 12.5px;
+}
+
+.tab-icon.active {
+  opacity: 1;
+}
+
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--blue);
+}
+
+/* Mindesthöhe: Ist das Panel zu niedrig, scrollt die ganze Ansicht, statt die Fehlerliste auf null zu quetschen. */
+#content {
+  flex: 1;
+  min-height: 204.5px;
+  overflow-y: auto;
+  margin-top: 4.5px;
+  padding-right: 8px;
+}
+
+.empty {
+  padding: 19px 0;
+  color: var(--text-dim);
+}
+
+.page-heading {
+  margin-top: 9.5px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---------- Fehlerkarten ---------- */
+
+.finding {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 9.5px;
+  padding: 8.5px 8px;
+  border: 1px solid var(--line);
+}
+
+.finding-type {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.change {
+  margin-top: 2.5px;
+  font-size: 11px;
+}
+
+.original {
+  color: var(--red);
+}
+
+.arrow {
+  color: var(--text);
+}
+
+.correction {
+  color: var(--green);
+}
+
+.explanation {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.finding-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.btn-small {
+  white-space: nowrap;
+  height: 15.5px;
+  line-height: 15.5px;
+  margin-right: 4.5px;
+  padding: 0 5.5px;
+  border-radius: 5.5px;
+  font-size: 9.5px;
+  cursor: pointer;
+}
+
+.btn-small.outline {
+  border: 1px solid var(--light);
+  color: var(--text);
+}
+
+.btn-small.filled {
+  border: 1px solid var(--light);
+  background-color: var(--light);
+  color: var(--on-light);
+}
+
+.done-by {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 4.5px;
+  font-size: 8.5px;
+  color: var(--text-muted);
+}
+
+.done-by .status-applied {
+  color: var(--green);
+  font-weight: 700;
+  margin-right: 3px;
+}
+
+.done-by .status-ignored {
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-right: 3px;
+}
+
+/* ---------- Avatare ---------- */
+
+.avatar {
+  width: 15.5px;
+  height: 15.5px;
+  margin-right: 4.5px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 7px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 15.5px;
+  flex-shrink: 0;
+}
+
+/* ---------- Laden ---------- */
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  padding-top: 22px;
+}
+
+.loading-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progress {
+  margin-top: 9.5px;
+  height: 4.5px;
+  border-radius: 2.5px;
+  background-color: var(--field);
+}
+
+.progress-bar {
+  height: 4.5px;
+  width: 0;
+  border-radius: 2.5px;
+  background-color: var(--blue);
+}
+
+.loading-meta {
+  margin-top: 6.5px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.btn-outline {
+  margin-top: 12.5px;
+  height: 22px;
+  line-height: 22px;
+  border: 1px solid var(--light);
+  border-radius: 6.5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-outline.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ---------- Historie & Statistik ---------- */
+
+.section-title {
+  margin-top: 11px;
+  margin-bottom: 6.5px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tiles {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 6px;
+}
+
+.tile {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+}
+
+.tile + .tile {
+  margin-left: 6px;
+}
+
+.tile-value {
+  font-size: 17.5px;
+  font-weight: 700;
+}
+
+.tile-label {
+  font-size: 8.5px;
+  color: var(--text-muted);
+}
+
+.bar-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 9.5px;
+}
+
+.bar-label {
+  width: 86.5px;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 6.5px;
+  margin-right: 6.5px;
+  border-radius: 3px;
+  background-color: var(--field);
+}
+
+.bar-fill {
+  height: 6.5px;
+  border-radius: 3px;
+  background-color: var(--blue);
+}
+
+.bar-value {
+  width: 22px;
+  text-align: right;
+}
+
+.list-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 4.5px;
+  font-size: 9.5px;
+}
+
+.list-row .muted {
+  margin-left: 4.5px;
+  color: var(--text-dim);
+}
+
+.details-toggle {
+  margin-top: 9.5px;
+  font-size: 9.5px;
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.details {
+  margin-top: 4.5px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.run {
+  margin-top: 11px;
+}
+
+.run-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: 700;
+}
+
+.run-meta {
+  margin-top: 2px;
+  font-size: 8.5px;
+  color: var(--text-dim);
+}
+
+.event {
+  display: flex;
+  flex-direction: row;
+  margin-top: 6.5px;
+  padding-left: 8px;
+  border-left: 2px solid var(--field-border);
+}
+
+.event-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-actions {
+  margin-top: 14px;
+  margin-bottom: 9.5px;
+}
+
+/* ---------- Einstellungen ---------- */
+
+.settings-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.option-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4.5px;
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.option-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-hint {
+  font-size: 8.5px;
+  color: var(--text-dim);
+}
+
+.option.on .toggle-dot {
+  background-color: var(--toggle-on);
+}
+
+.version {
+  margin-top: 12.5px;
+  margin-bottom: 6.5px;
+  font-size: 8.5px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.btn-small.disabled {
+  opacity: 0.35;
+}
+
+/* ---------- Fehler-Navigator ---------- */
+
+.header-icons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.header-icons .icon-button {
+  margin-left: 9.5px;
+}
+
+#btnFocusPanel {
+  width: 17.5px;
+  height: 17.5px;
+}
+
+.screen.navigator {
+  padding: 6px 8px;
+}
+
+.nav-back {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+}
+
+.focus-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.focus-pager {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 3px 12px 3px 0;
+}
+
+.focus-counter {
+  margin: 0 6.5px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.focus-page {
+  margin-left: 4.5px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.btn-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17.5px;
+  padding: 0;
+  margin-right: 0;
+}
+
+.btn-arrow img {
+  width: 6px;
+  height: 9px;
+}
+
+/* Abstand oben und unten: Brechen die Buttons unter die Pfeile um, entsteht genug Luft zur Pfeilzeile. */
+.focus-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 5px 0 1px;
+}
+
+.focus-actions .btn-small {
+  margin-bottom: 2px;
+}
+
+.focus-actions .btn-small {
+  margin-right: 0;
+  margin-left: 4.5px;
+}
+
+.focus-body {
+  margin-top: 6.5px;
+  overflow-y: auto;
+}
+
+.focus-body .empty {
+  padding: 3px 0;
+}
+
+.finding-actions .btn-small {
+  margin-bottom: 4px;
+}
+
+/* ---------- Wörterbuch ---------- */
+
+.dict-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 22px;
+  margin-bottom: 3px;
+}
+
+.dict-row input[type="checkbox"] {
+  margin: 0 8px 0 0;
+}
+
+.dict-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.dict-meta {
+  margin-left: 6px;
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+.dict-row .btn-small {
+  margin-left: 4.5px;
+  margin-right: 0;
+}
+
+.dict-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dict-form input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  margin: 0 6px 0 0;
+}
+
+.dict-form select {
+  margin-right: 6px;
+  max-width: 120px;
+}
+
+.dict-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.dict-toolbar .btn-small {
+  margin-bottom: 4px;
+}
+
+.dict-group {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.btn-small.danger {
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}

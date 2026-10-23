@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="index.js"></script>
+  </head>
+  <body>
+    <div id="mainRoot" class="panel-root">
+      <!-- Startanzeige mit Inline-Stil, damit sie auch erscheint, wenn CSS oder JS scheitern -->
+      <div id="bootStatus" style="padding: 12px; font-size: 11px; color: #9a9a9a">TP Lektor wird geladen …</div>
+    <!-- Willkommen -->
+    <section id="screen-welcome" class="screen">
+      <div class="welcome">
+        <img class="logo" data-icon="logo" src="icons/logo.svg" />
+        <div class="welcome-title">Herzlich Willkommen</div>
+        <div id="btnWelcome" class="btn-pill">Los geht’s</div>
+      </div>
+    </section>
+
+    <!-- Einrichtung -->
+    <section id="screen-setup" class="screen">
+      <div class="form">
+        <div class="form-title">Einrichtung</div>
+        <div class="form-text">Damit TP Lektor Texte prüfen kann, braucht es einen OpenAI API-Key.</div>
+
+        <label class="field-label" for="setupName">Dein Name</label>
+        <input id="setupName" class="field" type="text" placeholder="z. B. Marc Torzewski" />
+        <div class="field-hint">Erscheint in der Historie bei allen Korrekturen, die du machst.</div>
+
+        <label class="field-label" for="setupApiKey">OpenAI API-Key</label>
+        <input id="setupApiKey" class="field" type="password" placeholder="sk-..." />
+        <div class="field-hint">Du bekommst ihn unter platform.openai.com → API keys. Er wird verschlüsselt nur auf diesem Rechner gespeichert.</div>
+
+        <div id="setupNotice" class="notice error"></div>
+        <div id="btnSetupSave" class="btn-primary">Speichern &amp; starten</div>
+      </div>
+    </section>
+
+    <!-- Hauptansicht -->
+    <section id="screen-main" class="screen">
+      <div class="header">
+        <div id="toggleFunctions" class="collapse-toggle">
+          <img id="functionsChevron" class="chevron" data-icon="chevron-down" src="icons/chevron-down.svg" />
+          <span>Funktionen</span>
+        </div>
+        <div class="header-icons">
+          <img id="btnFocusPanel" class="icon-button" data-icon="compact" src="icons/compact.svg" title="Kompakte Ansicht: Fehler einzeln durchgehen" />
+          <img id="btnSettings" class="icon-button" data-icon="gear" src="icons/gear.svg" title="Einstellungen" />
+        </div>
+      </div>
+
+      <div id="functionsPanel" class="functions">
+        <div class="checks">
+          <div class="check-row">
+            <input type="checkbox" id="check-orthography" data-check="orthography" />
+            <span class="check-label" data-for="check-orthography" title="Rechtschreibung &amp; Grammatik">Rechtschreibung &amp; Grammatik</span>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" id="check-typography" data-check="typography" />
+            <span class="check-label" data-for="check-typography" title="Mikro- &amp; Makrotypografie">Mikro- &amp; Makrotypografie</span>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" id="check-editing" data-check="editing" />
+            <span class="check-label" data-for="check-editing" title="Lektorieren">Lektorieren</span>
+          </div>
+        </div>
+
+        <div class="range">
+          <div class="range-title">Seite</div>
+          <input id="pageFrom" class="page-input" type="text" placeholder="von" title="Erste Seite (leer = Dokumentanfang)" />
+          <input id="pageTo" class="page-input" type="text" placeholder="bis" title="Letzte Seite (leer = Dokumentende)" />
+        </div>
+      </div>
+
+      <div id="btnCheck" class="btn-check">
+        <img class="check-icon" src="icons/spell-check.svg" />
+        <span id="btnCheckLabel">Dokument prüfen</span>
+      </div>
+
+      <div id="notice" class="notice"></div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="open">Offen</div>
+        <div class="tab" data-tab="done">Bearbeitet</div>
+        <div class="tab" data-tab="history">Historie</div>
+        <div class="tab tab-icon" data-tab="dictionary" title="Wörterbuch"><img data-icon="book" src="icons/book.svg" /></div>
+      </div>
+
+      <div id="content"></div>
+    </section>
+
+    <!-- Einstellungen -->
+    <section id="screen-settings" class="screen">
+      <div class="header">
+        <div id="btnSettingsBack" class="collapse-toggle">
+          <img class="chevron" data-icon="arrow-left" src="icons/arrow-left.svg" />
+          <span>Einstellungen</span>
+        </div>
+      </div>
+
+      <div class="settings-scroll">
+        <div class="settings-section">
+          <div class="section-title">Profil</div>
+          <label class="field-label" for="settingsName">Name</label>
+          <input id="settingsName" class="field" type="text" />
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">OpenAI</div>
+          <label class="field-label" for="settingsApiKey">API-Key</label>
+          <input id="settingsApiKey" class="field" type="password" />
+
+          <div class="field-label">Modell</div>
+          <div id="modelOptions" class="option-list"></div>
+          <input id="settingsCustomModel" class="field" type="text" placeholder="Anderes Modell, z. B. gpt-5.4" />
+
+          <div class="field-label">Gründlichkeit</div>
+          <div id="effortOptions" class="option-list"></div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Dieses Dokument</div>
+          <div class="field-hint">Löscht alle Prüfergebnisse, die Historie und die Statistik, die in diesem Dokument gespeichert sind.</div>
+          <div id="btnClearData" class="btn-outline danger">Prüfdaten löschen</div>
+        </div>
+
+        <div id="settingsNotice" class="notice"></div>
+        <div id="btnSettingsSave" class="btn-primary">Speichern</div>
+        <div class="version">TP Lektor 2.0.0</div>
+      </div>
+    </section>
+
+    <!-- Fehler-Navigator: kompakte Ansicht im selben Panel, zum Kleinziehen über dem Dokument -->
+    <section id="screen-navigator" class="screen navigator">
+      <div class="focus-header">
+        <div class="focus-pager">
+          <img id="btnNavigatorBack" class="icon-button nav-back" data-icon="arrow-left" src="icons/arrow-left.svg" title="Zurück zur Liste" />
+          <div id="focusPrev" class="btn-small outline btn-arrow"><img data-icon="arrow-prev" src="icons/arrow-prev.svg" /></div>
+          <div id="focusCounter" class="focus-counter">0 / 0</div>
+          <div id="focusNext" class="btn-small outline btn-arrow"><img data-icon="arrow-next" src="icons/arrow-next.svg" /></div>
+          <div id="focusPage" class="focus-page"></div>
+        </div>
+        <div class="focus-actions">
+          <div id="focusApply" class="btn-small filled">Übernehmen</div>
+          <div id="focusIgnore" class="btn-small filled">Ignorieren</div>
+          <div id="focusIgnoreAll" class="btn-small filled">Alle ignorieren</div>
+          <div id="focusDictionary" class="btn-small outline">Ins Wörterbuch</div>
+        </div>
+      </div>
+      <div id="focusBody" class="focus-body"></div>
+      <div id="focusNotice" class="notice"></div>
+    </section>
+    </div>
+  </body>
+</html>
