@@ -326,6 +326,7 @@ body {
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
 /* Abstand am Container statt am Feld: Einen Außenabstand direkt am nativen Feld schneidet InDesign ab. */
 .page-field {
+  position: relative;
   margin-bottom: 3px;
 }
 
