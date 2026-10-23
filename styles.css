@@ -324,10 +324,12 @@ body {
 }
 
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
-/* Abstand am Container statt am Feld: Einen Außenabstand direkt am nativen Feld schneidet InDesign ab. */
+/* Rundum Platz im Container: InDesign zeichnet um aktive oder überfahrene Felder einen breiteren Rahmen
+   und schneidet ihn sonst am Rand des Containers ab. */
 .page-field {
   position: relative;
-  margin-bottom: 3px;
+  padding: 2px;
+  margin-bottom: 1px;
 }
 
 .page-input {
