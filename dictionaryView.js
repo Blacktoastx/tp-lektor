@@ -40,15 +40,19 @@ const createCategorySelect = (categories, selectedId, onChange) => {
   return select;
 };
 
-const createTextForm = (placeholder, buttonLabel, extra, onSubmit) => {
+// Beschriftung über dem Feld statt Platzhalter: InDesign schneidet native Felder mit Platzhalter an.
+const createTextForm = (label, buttonLabel, extra, onSubmit) => {
   const input = document.createElement("input");
   input.type = "text";
-  input.placeholder = placeholder;
   const submit = () => onSubmit(input.value, input);
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") submit();
   });
-  return append(createElement("div", "dict-form"), input, extra, createButton(buttonLabel, "filled", submit));
+  return append(
+    createElement("div"),
+    createElement("div", "dict-form-label", label),
+    append(createElement("div", "dict-form"), input, extra, createButton(buttonLabel, "filled", submit))
+  );
 };
 
 const renderCategories = (container, dictionary, view, handlers) => {

@@ -324,9 +324,21 @@ body {
 }
 
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
+.range-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.range-label {
+  margin-right: 6px;
+  color: var(--text-muted);
+}
+
 .page-input {
   width: 38px;
-  margin: 0 0 3px;
+  margin: 0;
 }
 
 /* ---------- Prüfen-Button ---------- */
@@ -965,4 +977,11 @@ body {
 
 .setting-label {
   cursor: pointer;
+}
+
+.dict-form-label {
+  margin-top: 6px;
+  margin-bottom: 3px;
+  font-size: 9.5px;
+  color: var(--text-muted);
 }

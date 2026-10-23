@@ -25,12 +25,12 @@
         <div class="form-text">Damit TP Lektor Texte prüfen kann, braucht es einen OpenAI API-Key.</div>
 
         <label class="field-label" for="setupName">Dein Name</label>
-        <input id="setupName" class="field" type="text" placeholder="z. B. Marc Torzewski" />
+        <input id="setupName" class="field" type="text" />
         <div class="field-hint">Erscheint in der Historie bei allen Korrekturen, die du machst.</div>
 
         <label class="field-label" for="setupApiKey">OpenAI API-Key</label>
-        <input id="setupApiKey" class="field" type="password" placeholder="sk-..." />
-        <div class="field-hint">Du bekommst ihn unter platform.openai.com → API keys. Er wird verschlüsselt nur auf diesem Rechner gespeichert.</div>
+        <input id="setupApiKey" class="field" type="password" />
+        <div class="field-hint">Beginnt mit „sk-“. Du bekommst ihn unter platform.openai.com → API keys. Er wird verschlüsselt nur auf diesem Rechner gespeichert.</div>
 
         <div id="setupNotice" class="notice error"></div>
         <div id="btnSetupSave" class="btn-primary">Speichern &amp; starten</div>
@@ -68,8 +68,15 @@
 
         <div class="range">
           <div class="range-title">Seite</div>
-          <input id="pageFrom" class="page-input" type="text" placeholder="von" title="Erste Seite (leer = Dokumentanfang)" />
-          <input id="pageTo" class="page-input" type="text" placeholder="bis" title="Letzte Seite (leer = Dokumentende)" />
+          <!-- Bewusst ohne placeholder: InDesign schneidet native Felder mit Platzhalter an. -->
+          <div class="range-row">
+            <span class="range-label">von</span>
+            <input id="pageFrom" class="page-input" type="text" title="Erste Seite (leer = Dokumentanfang)" />
+          </div>
+          <div class="range-row">
+            <span class="range-label">bis</span>
+            <input id="pageTo" class="page-input" type="text" title="Letzte Seite (leer = Dokumentende)" />
+          </div>
         </div>
       </div>
 
@@ -113,7 +120,9 @@
 
           <div class="field-label">Modell</div>
           <div id="modelOptions" class="option-list"></div>
-          <input id="settingsCustomModel" class="field" type="text" placeholder="Anderes Modell, z. B. gpt-5.4" />
+          <label class="field-label" for="settingsCustomModel">Anderes Modell (optional)</label>
+          <input id="settingsCustomModel" class="field" type="text" />
+          <div class="field-hint">Z. B. gpt-5.4. Ein Eintrag hier ersetzt die Auswahl oben.</div>
 
           <div class="field-label">Gründlichkeit</div>
           <div id="effortOptions" class="option-list"></div>
