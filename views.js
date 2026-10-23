@@ -287,7 +287,69 @@ const describeRun = (run) => {
   return `${checkLabels} · ${formatRange(run.range)} · ${run.findingsCount} neue Fehler${hidden}${cancelled}`;
 };
 
-const renderRuns = (container, data) => {
+const prettyJson = (raw) => {
+  try {
+    return JSON.stringify(JSON.parse(raw), null, 2);
+  } catch {
+    return raw;
+  }
+};
+
+// Auf- und zuklappbarer Bereich. Der Inhalt wird erst beim ersten Öffnen gebaut, weil Protokolle groß sein können.
+const createCollapsible = (label, buildContent) => {
+  const wrapper = createElement("div", "collapsible");
+  const toggle = createElement("div", "details-toggle", `▸ ${label}`);
+  const body = createElement("div", "collapsible-body");
+  body.style.display = "none";
+  let built = false;
+  toggle.addEventListener("click", () => {
+    const opening = body.style.display === "none";
+    if (opening && !built) {
+      buildContent(body);
+      built = true;
+    }
+    body.style.display = opening ? "block" : "none";
+    toggle.textContent = `${opening ? "▾" : "▸"} ${label}`;
+  });
+  return append(wrapper, toggle, body);
+};
+
+const createLogText = (text) => createElement("div", "log-text", text);
+
+const renderRunLog = (body, run, logHandlers) => {
+  const log = logHandlers.loadLog(run.id);
+  if (!log) {
+    body.appendChild(createElement("div", "run-meta", "Für diese Prüfung ist kein Protokoll mehr gespeichert."));
+    return;
+  }
+  body.appendChild(
+    createElement(
+      "div",
+      "run-meta",
+      `${log.model} · Gründlichkeit ${log.effort} · ${log.exchanges.length} von ${log.totalRequests} Anfragen beantwortet`
+    )
+  );
+  body.appendChild(createCollapsible("System-Prompt (Anweisungen an die KI)", (inner) => inner.appendChild(createLogText(log.system))));
+  for (const exchange of log.exchanges) {
+    const label = `Anfrage ${exchange.index + 1} · ${formatNumber(exchange.usage.input)} / ${formatNumber(exchange.usage.output)} Tokens`;
+    body.appendChild(
+      createCollapsible(label, (inner) =>
+        append(
+          inner,
+          createElement("div", "log-label", "Gesendet"),
+          createLogText(exchange.user),
+          createElement("div", "log-label", "Antwort"),
+          createLogText(prettyJson(exchange.response))
+        )
+      )
+    );
+  }
+  const saveButton = createElement("div", "btn-small outline log-save", "Als Textdatei speichern");
+  saveButton.addEventListener("click", () => logHandlers.onSaveLog(run));
+  body.appendChild(saveButton);
+};
+
+const renderRuns = (container, data, logHandlers) => {
   container.appendChild(createElement("div", "section-title", "Verlauf"));
   if (data.runs.length === 0) {
     container.appendChild(createElement("div", "empty", "Für dieses Dokument gibt es noch keine Prüfungen."));
@@ -304,6 +366,11 @@ const renderRuns = (container, data) => {
       ),
       createElement("div", "run-meta", describeRun(run))
     );
+    if (run.hasLog) {
+      runElement.appendChild(
+        createCollapsible("Details: Prompt & Antwort", (body) => renderRunLog(body, run, logHandlers))
+      );
+    }
     const events = data.events.filter((event) => event.runId === run.id);
     if (events.length === 0) runElement.appendChild(createElement("div", "run-meta", "Noch nichts bearbeitet."));
     for (const event of events) runElement.appendChild(createEvent(event));
@@ -311,9 +378,9 @@ const renderRuns = (container, data) => {
   }
 };
 
-const renderHistory = (container, data, stats, onExport) => {
+const renderHistory = (container, data, stats, onExport, logHandlers) => {
   renderStats(container, stats, onExport);
-  renderRuns(container, data);
+  renderRuns(container, data, logHandlers);
   container.appendChild(createElement("div", "history-actions"));
 };
 

@@ -100,13 +100,18 @@ const request = async (apiKey, path, options = {}) => {
 const verifyApiKey = (apiKey) => request(apiKey, "/models");
 
 const checkChunk = async (options) => {
+  const body = buildRequestBody(options);
   const data = await request(options.apiKey, "/chat/completions", {
     method: "POST",
-    body: JSON.stringify(buildRequestBody(options)),
+    body: JSON.stringify(body),
   });
   const message = data.choices[0].message;
   if (message.refusal) throw new Error(`Modell hat abgelehnt: ${message.refusal}`);
-  return { findings: JSON.parse(message.content).fehler, usage: data.usage };
+  return {
+    findings: JSON.parse(message.content).fehler,
+    usage: data.usage,
+    exchange: { system: body.messages[0].content, user: body.messages[1].content, response: message.content },
+  };
 };
 
 module.exports = { checkChunk, verifyApiKey };

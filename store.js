@@ -3,6 +3,11 @@
 const LABEL_KEY = "de.tpmarketing.tplektor.data";
 const LEGACY_LABEL_KEY = "de.tpmarketing.korrektor.history";
 
+// Das vollständige Protokoll (Prompt + Antworten) enthält den ganzen Dokumenttext. Es liegt darum in eigenen
+// Labels pro Prüfung, und nur die letzten MAX_RUN_LOGS bleiben erhalten, damit die .indd-Datei nicht stetig wächst.
+const LOG_LABEL_PREFIX = "de.tpmarketing.tplektor.log.";
+const MAX_RUN_LOGS = 5;
+
 const emptyData = () => ({ version: 2, runs: [], findings: [], events: [], ignoredKeys: [] });
 
 const migrateLegacy = (legacy) => {
@@ -41,7 +46,17 @@ const isInScope = (finding, scope) =>
 
 // Eine neue Prüfung ersetzt die offenen Fehler, die sie selbst abdeckt (gleiche Funktionen, gleicher Seitenbereich).
 // Bei abgebrochenen Prüfungen bleibt alles Alte stehen, es kommen nur neue Funde dazu.
-const addRun = (doc, run, newFindings, replaceScope) => {
+const pruneRunLogs = (doc, data) => {
+  const withLog = data.runs.filter((run) => run.hasLog);
+  for (const run of withLog.slice(0, Math.max(0, withLog.length - MAX_RUN_LOGS))) {
+    doc.insertLabel(LOG_LABEL_PREFIX + run.id, "");
+    run.hasLog = false;
+  }
+};
+
+const loadRunLog = (doc, runId) => parse(doc.extractLabel(LOG_LABEL_PREFIX + runId));
+
+const addRun = (doc, run, newFindings, replaceScope, log) => {
   const data = load(doc);
   const ignored = new Set(data.ignoredKeys);
   if (replaceScope) {
@@ -56,8 +71,17 @@ const addRun = (doc, run, newFindings, replaceScope) => {
     const key = findingKey(finding);
     return !ignored.has(key) && !openKeys.has(key);
   });
-  data.runs.push({ ...run, findingsCount: accepted.length, hiddenCount: newFindings.length - accepted.length });
+  data.runs.push({
+    ...run,
+    hasLog: Boolean(log),
+    findingsCount: accepted.length,
+    hiddenCount: newFindings.length - accepted.length,
+  });
   data.findings.push(...accepted);
+  if (log) {
+    doc.insertLabel(LOG_LABEL_PREFIX + run.id, JSON.stringify(log));
+    pruneRunLogs(doc, data);
+  }
   save(doc, data);
   return data;
 };
@@ -108,8 +132,11 @@ const updateFindingStatus = (doc, findingId, status, user, extra) =>
   updateFindingsStatus(doc, [findingId], status, user, extra);
 
 const clear = (doc) => {
+  for (const run of load(doc).runs.filter((candidate) => candidate.hasLog)) {
+    doc.insertLabel(LOG_LABEL_PREFIX + run.id, "");
+  }
   save(doc, emptyData());
   if (doc.extractLabel(LEGACY_LABEL_KEY)) doc.insertLabel(LEGACY_LABEL_KEY, "");
 };
 
-module.exports = { load, addRun, updateFindingStatus, updateFindingsStatus, clear };
+module.exports = { load, loadRunLog, addRun, updateFindingStatus, updateFindingsStatus, clear };

@@ -35,4 +35,11 @@ const exportCsv = async (findings, documentName) => {
   return file.name;
 };
 
-module.exports = { exportCsv };
+const saveTextFile = async (suggestedName, text) => {
+  const file = await localFileSystem.getFileForSaving(suggestedName, { types: ["txt"] });
+  if (!file) return null;
+  await file.write(text, { format: formats.utf8 });
+  return file.name;
+};
+
+module.exports = { exportCsv, saveTextFile };

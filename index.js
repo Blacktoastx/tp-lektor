@@ -31,7 +31,7 @@ const { checkChunk, verifyApiKey } = require("./openai");
 const { checkForType } = require("./checks");
 const { MODEL_OPTIONS, EFFORT_OPTIONS } = require("./models");
 const { showFinding, applyCorrection } = require("./documentActions");
-const { exportCsv } = require("./csvExport");
+const { exportCsv, saveTextFile } = require("./csvExport");
 const { renderFindings, renderLoading, renderHistory } = require("./views");
 const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
@@ -158,7 +158,7 @@ const render = () => {
   }
 
   if (state.activeTab === "history") {
-    renderHistory(container, data, computeStats(data), runSafely(exportFindings));
+    renderHistory(container, data, computeStats(data), runSafely(exportFindings), historyLogHandlers);
     restoreScroll();
     return;
   }
@@ -239,6 +239,34 @@ const findingHandlers = {
     runSafely(() => {
       changeFindingStatus(finding, "open");
       showNotice(`„${finding.original}“ ist wieder offen.`);
+    })(),
+};
+
+const formatLogAsText = (run, log) =>
+  [
+    `TP Lektor – Prüfprotokoll vom ${new Date(run.startedAt).toLocaleString()}`,
+    `Modell: ${log.model} · Gründlichkeit: ${log.effort} · Anfragen: ${log.exchanges.length} von ${log.totalRequests}`,
+    "",
+    "=== SYSTEM-PROMPT ===",
+    log.system,
+    ...log.exchanges.flatMap((exchange) => [
+      "",
+      `=== ANFRAGE ${exchange.index + 1} · ${exchange.usage.input} Eingabe- / ${exchange.usage.output} Ausgabe-Tokens ===`,
+      "--- Gesendet ---",
+      exchange.user,
+      "--- Antwort ---",
+      exchange.response,
+    ]),
+  ].join("\n");
+
+const historyLogHandlers = {
+  loadLog: (runId) => store.loadRunLog(getActiveDocument(), runId),
+  onSaveLog: (run) =>
+    runSafely(async () => {
+      const log = store.loadRunLog(getActiveDocument(), run.id);
+      if (!log) throw new Error("Für diese Prüfung ist kein Protokoll mehr gespeichert.");
+      const fileName = await saveTextFile(`TP Lektor Protokoll ${run.id}.txt`, formatLogAsText(run, log));
+      if (fileName) showNotice(`Gespeichert: ${fileName}`);
     })(),
 };
 
@@ -591,12 +619,14 @@ const checkDocument = async () => {
     const dictionaryTerms = dictionary.activeTerms();
     const chunks = splitIntoChunks(entries, MAX_CHARS_PER_REQUEST);
     const usage = { input: 0, output: 0 };
+    const exchanges = [];
+    let systemPrompt = "";
     const found = [];
     let done = 0;
     let rejected = 0;
 
     state.loading.update(0, chunks.length, 0);
-    const tasks = chunks.map((chunk) => async () => {
+    const tasks = chunks.map((chunk, chunkIndex) => async () => {
       const result = await checkChunk({
         apiKey: state.apiKey,
         model: preferences.model,
@@ -610,6 +640,13 @@ const checkDocument = async () => {
       found.push(...verified);
       usage.input += result.usage.prompt_tokens;
       usage.output += result.usage.completion_tokens;
+      systemPrompt = result.exchange.system;
+      exchanges.push({
+        index: chunkIndex,
+        user: result.exchange.user,
+        response: result.exchange.response,
+        usage: { input: result.usage.prompt_tokens, output: result.usage.completion_tokens },
+      });
       done++;
       state.loading.update(done, chunks.length, found.length);
     });
@@ -634,7 +671,14 @@ const checkDocument = async () => {
       cancelled: state.cancelled,
     };
     const replaceScope = state.cancelled ? null : { checks: preferences.checks, range };
-    const data = store.addRun(doc, run, allowed, replaceScope);
+    const log = {
+      model: preferences.model,
+      effort: preferences.effort,
+      totalRequests: chunks.length,
+      system: systemPrompt,
+      exchanges: exchanges.sort((a, b) => a.index - b.index),
+    };
+    const data = store.addRun(doc, run, allowed, replaceScope, exchanges.length > 0 ? log : null);
     const savedRun = data.runs[data.runs.length - 1];
 
     const hidden = savedRun.hiddenCount > 0 ? ` ${savedRun.hiddenCount} waren schon bekannt oder ignoriert.` : "";
