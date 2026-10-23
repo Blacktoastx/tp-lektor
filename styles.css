@@ -307,12 +307,15 @@ body {
   margin: 0 8px 0 0;
 }
 
+/* Innenabstand rechts und unten: InDesign zeichnet den Rahmen nativer Felder etwas über ihre Box hinaus,
+   ohne diesen Puffer wird er am Rand des Bereichs abgeschnitten. */
 .range {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
   margin-left: 10px;
+  padding: 0 2px 3px 0;
 }
 
 .range-title {
@@ -326,7 +329,7 @@ body {
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
 .page-input {
   width: 38px;
-  margin: 0 0 3px;
+  margin: 0 0 4px;
 }
 
 /* ---------- Prüfen-Button ---------- */
