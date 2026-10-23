@@ -40,6 +40,7 @@ const loadPreferences = () => {
     checks: (stored.checks || ["orthography"]).filter((key) => CHECK_KEYS.includes(key)),
     functionsCollapsed: Boolean(stored.functionsCollapsed),
     dictionaryCategory: stored.dictionaryCategory || "allgemein",
+    saveRunLogs: stored.saveRunLogs === true,
   };
 };
 

@@ -54,6 +54,17 @@ const pruneRunLogs = (doc, data) => {
   }
 };
 
+const clearRunLogs = (doc) => {
+  const data = load(doc);
+  const withLog = data.runs.filter((run) => run.hasLog);
+  for (const run of withLog) {
+    doc.insertLabel(LOG_LABEL_PREFIX + run.id, "");
+    run.hasLog = false;
+  }
+  save(doc, data);
+  return withLog.length;
+};
+
 const loadRunLog = (doc, runId) => parse(doc.extractLabel(LOG_LABEL_PREFIX + runId));
 
 const addRun = (doc, run, newFindings, replaceScope, log) => {
@@ -139,4 +150,4 @@ const clear = (doc) => {
   if (doc.extractLabel(LEGACY_LABEL_KEY)) doc.insertLabel(LEGACY_LABEL_KEY, "");
 };
 
-module.exports = { load, loadRunLog, addRun, updateFindingStatus, updateFindingsStatus, clear };
+module.exports = { load, loadRunLog, clearRunLogs, addRun, updateFindingStatus, updateFindingsStatus, clear };

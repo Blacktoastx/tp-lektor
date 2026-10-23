@@ -120,6 +120,16 @@
         </div>
 
         <div class="settings-section">
+          <div class="section-title">Prüfprotokoll</div>
+          <div class="setting-row">
+            <input type="checkbox" id="settingsSaveLogs" />
+            <span id="settingsSaveLogsLabel" class="setting-label">Prompt &amp; Antwort der letzten 5 Prüfungen speichern</span>
+          </div>
+          <div class="field-hint">Speichert den gesendeten Text und die Antworten der KI im Dokument. Sichtbar in der Historie unter „Details“. Achtung: Das Protokoll enthält den kompletten geprüften Text und ist für alle sichtbar, die die Datei öffnen.</div>
+          <div id="btnClearLogs" class="btn-outline danger">Protokolle dieses Dokuments löschen</div>
+        </div>
+
+        <div class="settings-section">
           <div class="section-title">Dieses Dokument</div>
           <div class="field-hint">Löscht alle Prüfergebnisse, die Historie und die Statistik, die in diesem Dokument gespeichert sind.</div>
           <div id="btnClearData" class="btn-outline danger">Prüfdaten löschen</div>

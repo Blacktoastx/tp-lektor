@@ -678,7 +678,8 @@ const checkDocument = async () => {
       system: systemPrompt,
       exchanges: exchanges.sort((a, b) => a.index - b.index),
     };
-    const data = store.addRun(doc, run, allowed, replaceScope, exchanges.length > 0 ? log : null);
+    const shouldSaveLog = preferences.saveRunLogs && exchanges.length > 0;
+    const data = store.addRun(doc, run, allowed, replaceScope, shouldSaveLog ? log : null);
     const savedRun = data.runs[data.runs.length - 1];
 
     const hidden = savedRun.hiddenCount > 0 ? ` ${savedRun.hiddenCount} waren schon bekannt oder ignoriert.` : "";
@@ -813,6 +814,7 @@ const openSettings = () => {
   $("settingsName").value = preferences.userName;
   $("settingsApiKey").value = state.apiKey;
   $("settingsCustomModel").value = isKnownModel ? "" : preferences.model;
+  $("settingsSaveLogs").checked = preferences.saveRunLogs;
   hideNotice("settingsNotice");
   renderSettingsOptions();
   showScreen("settings");
@@ -834,10 +836,18 @@ const saveSettings = async () => {
     userName,
     model: customModel || settingsDraft.model,
     effort: settingsDraft.effort,
+    saveRunLogs: $("settingsSaveLogs").checked,
   });
   showScreen("main");
   render();
   showNotice("Einstellungen gespeichert.");
+};
+
+const clearDocumentLogs = () => {
+  const doc = getActiveDocument();
+  const count = store.clearRunLogs(doc);
+  const message = count > 0 ? `${count} Prüfprotokolle aus „${doc.name}“ gelöscht.` : `„${doc.name}“ enthält keine Prüfprotokolle.`;
+  showNotice(message, "info", "settingsNotice");
 };
 
 const clearDocumentData = () => {
@@ -954,6 +964,10 @@ const bindEvents = () => {
   $("btnSettingsBack").addEventListener("click", () => showScreen("main"));
   $("btnSettingsSave").addEventListener("click", runSafely(saveSettings, "settingsNotice"));
   $("btnClearData").addEventListener("click", runSafely(clearDocumentData, "settingsNotice"));
+  $("btnClearLogs").addEventListener("click", runSafely(clearDocumentLogs, "settingsNotice"));
+  $("settingsSaveLogsLabel").addEventListener("click", () => {
+    $("settingsSaveLogs").checked = !$("settingsSaveLogs").checked;
+  });
 };
 
 let initialized = false;
