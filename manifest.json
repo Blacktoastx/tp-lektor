@@ -30,7 +30,35 @@
       "preferredFloatingSize": {
         "width": 350,
         "height": 500
-      }
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-on-dark.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "darkest",
+            "dark"
+          ]
+        },
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-on-light.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "lightest",
+            "light"
+          ]
+        }
+      ]
     }
   ],
   "requiredPermissions": {
@@ -40,5 +68,33 @@
       ]
     },
     "localFileSystem": "request"
-  }
+  },
+  "icons": [
+    {
+      "width": 23,
+      "height": 23,
+      "path": "icons/panel-on-dark.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "darkest",
+        "dark"
+      ]
+    },
+    {
+      "width": 23,
+      "height": 23,
+      "path": "icons/panel-on-light.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "lightest",
+        "light"
+      ]
+    }
+  ]
 }

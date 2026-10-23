@@ -68,8 +68,14 @@
 
         <div class="range">
           <div class="range-title">Seite</div>
-          <input id="pageFrom" class="page-input" type="text" placeholder="von" title="Erste Seite (leer = Dokumentanfang)" />
-          <input id="pageTo" class="page-input" type="text" placeholder="bis" title="Letzte Seite (leer = Dokumentende)" />
+          <div class="page-field">
+            <input id="pageFrom" class="page-input" type="text" title="Erste Seite (leer = Dokumentanfang)" />
+            <span class="page-placeholder" data-for="pageFrom">von</span>
+          </div>
+          <div class="page-field">
+            <input id="pageTo" class="page-input" type="text" title="Letzte Seite (leer = Dokumentende)" />
+            <span class="page-placeholder" data-for="pageTo">bis</span>
+          </div>
         </div>
       </div>
 

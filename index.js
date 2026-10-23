@@ -672,6 +672,22 @@ const renderFunctionsCollapsed = () => {
   applyThemeIcons();
 };
 
+const updatePagePlaceholders = () => {
+  for (const placeholder of $$(".page-placeholder")) {
+    const input = $(placeholder.getAttribute("data-for"));
+    placeholder.style.display = input.value ? "none" : "flex";
+  }
+};
+
+const bindPagePlaceholders = () => {
+  for (const placeholder of $$(".page-placeholder")) {
+    const input = $(placeholder.getAttribute("data-for"));
+    placeholder.addEventListener("click", () => input.focus());
+    input.addEventListener("input", updatePagePlaceholders);
+  }
+  updatePagePlaceholders();
+};
+
 // ---------- Willkommen & Einrichtung ----------
 
 const saveSetup = async () => {
@@ -890,6 +906,7 @@ const initPanel = async () => {
     bindFocusEvents,
     renderCheckToggles,
     renderFunctionsCollapsed,
+    bindPagePlaceholders,
     watchActiveDocument,
   ];
   const failures = [];
