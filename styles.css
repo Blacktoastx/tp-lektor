@@ -324,17 +324,9 @@ body {
 }
 
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
-/* Rundum Platz im Container: InDesign zeichnet um aktive oder überfahrene Felder einen breiteren Rahmen
-   und schneidet ihn sonst am Rand des Containers ab. */
-.page-field {
-  position: relative;
-  padding: 2px;
-  margin-bottom: 1px;
-}
-
 .page-input {
   width: 38px;
-  margin: 0;
+  margin: 0 0 3px;
 }
 
 /* ---------- Prüfen-Button ---------- */

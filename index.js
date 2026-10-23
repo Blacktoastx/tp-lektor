@@ -860,10 +860,20 @@ const clearDocumentData = () => {
 
 const LIGHT_THEMES = ["light", "lightest"];
 
+const KNOWN_THEMES = ["darkest", "dark", "light", "lightest"];
+
+// Die Theme-API liefert je nach UXP-Version einen Text oder ein Objekt. Hier wird daraus immer
+// einer der vier Namen, damit der Vergleich im Sekundentakt nicht jedes Mal eine „Änderung“ meldet.
+const themeName = (raw) => {
+  const text = typeof raw === "string" ? raw : raw && (raw.name || raw.theme || raw.id);
+  const name = String(text || "").toLowerCase();
+  return KNOWN_THEMES.includes(name) ? name : null;
+};
+
 // Erst die UXP-Theme-API, dann die Media-Query als Rückfall.
 const currentTheme = () => {
   try {
-    const theme = document.theme.getCurrent();
+    const theme = themeName(document.theme.getCurrent());
     if (theme) return theme;
   } catch {
     // weiter mit matchMedia
@@ -885,7 +895,8 @@ const applyThemeIcons = () => {
   const folder = isLightTheme() ? "icons/light/" : "icons/";
   for (const image of $$("img")) {
     const icon = image.getAttribute("data-icon");
-    if (icon) image.src = `${folder}${icon}.svg`;
+    const source = `${folder}${icon}.svg`;
+    if (icon && image.getAttribute("src") !== source) image.src = source;
   }
 };
 
@@ -893,7 +904,8 @@ const applyTheme = () => {
   try {
     state.theme = currentTheme();
     const root = $("mainRoot");
-    root.className = isLightTheme() ? "panel-root light-theme" : "panel-root";
+    const className = LIGHT_THEMES.includes(state.theme) ? "panel-root light-theme" : "panel-root";
+    if (root.className !== className) root.className = className;
     applyThemeIcons();
   } catch (error) {
     console.error("Farbschema konnte nicht angewendet werden:", error);
