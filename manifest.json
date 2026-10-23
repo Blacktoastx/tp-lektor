@@ -43,6 +43,9 @@
           "theme": [
             "darkest",
             "dark"
+          ],
+          "species": [
+            "chrome"
           ]
         },
         {
@@ -56,6 +59,9 @@
           "theme": [
             "lightest",
             "light"
+          ],
+          "species": [
+            "chrome"
           ]
         }
       ]

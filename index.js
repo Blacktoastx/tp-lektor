@@ -672,22 +672,6 @@ const renderFunctionsCollapsed = () => {
   applyThemeIcons();
 };
 
-const updatePagePlaceholders = () => {
-  for (const placeholder of $$(".page-placeholder")) {
-    const input = $(placeholder.getAttribute("data-for"));
-    placeholder.style.display = input.value ? "none" : "flex";
-  }
-};
-
-const bindPagePlaceholders = () => {
-  for (const placeholder of $$(".page-placeholder")) {
-    const input = $(placeholder.getAttribute("data-for"));
-    placeholder.addEventListener("click", () => input.focus());
-    input.addEventListener("input", updatePagePlaceholders);
-  }
-  updatePagePlaceholders();
-};
-
 // ---------- Willkommen & Einrichtung ----------
 
 const saveSetup = async () => {
@@ -801,12 +785,21 @@ const clearDocumentData = () => {
 
 const LIGHT_THEMES = ["light", "lightest"];
 
+// Erst die UXP-Theme-API, dann die Media-Query als Rückfall.
 const currentTheme = () => {
   try {
-    return document.theme.getCurrent();
+    const theme = document.theme.getCurrent();
+    if (theme) return theme;
   } catch {
-    return "dark";
+    // weiter mit matchMedia
   }
+  try {
+    if (window.matchMedia("(prefers-color-scheme: lightest)").matches) return "lightest";
+    if (window.matchMedia("(prefers-color-scheme: light)").matches) return "light";
+  } catch {
+    // keine Erkennung möglich
+  }
+  return "dark";
 };
 
 const isLightTheme = () => LIGHT_THEMES.includes(currentTheme());
@@ -823,6 +816,7 @@ const applyThemeIcons = () => {
 
 const applyTheme = () => {
   try {
+    state.theme = currentTheme();
     const root = $("mainRoot");
     root.className = isLightTheme() ? "panel-root light-theme" : "panel-root";
     applyThemeIcons();
@@ -831,9 +825,13 @@ const applyTheme = () => {
   }
 };
 
-// Bewusst ohne document.theme.onUpdated: Das Farbschema wird beim Start und bei jedem Einblenden des Panels übernommen.
+// Statt eines Event-Listeners prüft der Sekundentakt in watchActiveDocument, ob sich das Farbschema geändert hat.
 const watchTheme = () => {
   applyTheme();
+};
+
+const refreshThemeIfChanged = () => {
+  if (currentTheme() !== state.theme) applyTheme();
 };
 
 // ---------- Start ----------
@@ -845,6 +843,7 @@ const DOCUMENT_POLL_MS = 1000;
 const watchActiveDocument = () => {
   setInterval(() => {
     try {
+      refreshThemeIfChanged();
       const doc = findActiveDocument();
       const id = doc ? doc.id : null;
       if (id !== state.shownDocumentId) render();
@@ -906,7 +905,6 @@ const initPanel = async () => {
     bindFocusEvents,
     renderCheckToggles,
     renderFunctionsCollapsed,
-    bindPagePlaceholders,
     watchActiveDocument,
   ];
   const failures = [];

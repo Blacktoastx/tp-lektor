@@ -37,6 +37,48 @@
   --on-light: #ffffff;
 }
 
+/* Rückfall und sofortige Umschaltung: UXP meldet das InDesign-Farbschema auch als Media-Feature.
+   Getrennte Blöcke statt einer Komma-Liste, falls die UXP-Engine Listen in Media-Queries nicht verarbeitet. */
+@media (prefers-color-scheme: light) {
+  :root {
+  --text: #1f1f1f;
+  --text-muted: #4a4a4a;
+  --text-dim: #6e6e6e;
+  --line: #8c8c8c;
+  --divider: #b5b5b5;
+  --field: #ffffff;
+  --field-border: #a3a3a3;
+  --toggle: #d6d6d6;
+  --toggle-off: #a8a8a8;
+  --toggle-on: #1f1f1f;
+  --red: #d01219;
+  --green: #11841a;
+  --danger: #c62828;
+  --light: #3a3a3a;
+  --on-light: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: lightest) {
+  :root {
+  --text: #1f1f1f;
+  --text-muted: #4a4a4a;
+  --text-dim: #6e6e6e;
+  --line: #8c8c8c;
+  --divider: #b5b5b5;
+  --field: #ffffff;
+  --field-border: #a3a3a3;
+  --toggle: #d6d6d6;
+  --toggle-off: #a8a8a8;
+  --toggle-on: #1f1f1f;
+  --red: #d01219;
+  --green: #11841a;
+  --danger: #c62828;
+  --light: #3a3a3a;
+  --on-light: #ffffff;
+  }
+}
+
 
 html,
 body {
@@ -282,27 +324,9 @@ body {
 }
 
 /* Breit genug für zwei- bis dreistellige Seitenzahlen. */
-.page-field {
-  position: relative;
-  margin-bottom: 3px;
-}
-
 .page-input {
   width: 38px;
-  margin: 0;
-}
-
-/* Eigener Platzhalter: Den nativen Platzhalter zeichnet InDesign sehr blass und lässt ihn nicht umfärben. */
-.page-placeholder {
-  position: absolute;
-  left: 6px;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  color: var(--text-muted);
-  cursor: text;
+  margin: 0 0 3px;
 }
 
 /* ---------- Prüfen-Button ---------- */
