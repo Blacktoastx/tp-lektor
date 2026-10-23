@@ -672,6 +672,27 @@ const renderFunctionsCollapsed = () => {
   applyThemeIcons();
 };
 
+// In UXP nimmt ein Klick auf eine normale Fläche einem Eingabefeld den Fokus nicht ab.
+// Darum wird der Fokus hier selbst gelöst: bei einem Klick außerhalb eines Feldes und bei Enter.
+const FIELD_TAGS = ["INPUT", "TEXTAREA", "SELECT"];
+
+const blurActiveField = () => {
+  const active = document.activeElement;
+  if (active && FIELD_TAGS.includes(active.tagName)) active.blur();
+};
+
+const bindFieldBlur = () => {
+  const [root] = roots;
+  root.addEventListener("mousedown", (event) => {
+    if (!FIELD_TAGS.includes(event.target.tagName)) blurActiveField();
+  });
+  for (const input of [$("pageFrom"), $("pageTo")]) {
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") input.blur();
+    });
+  }
+};
+
 // ---------- Willkommen & Einrichtung ----------
 
 const saveSetup = async () => {
@@ -905,6 +926,7 @@ const initPanel = async () => {
     bindFocusEvents,
     renderCheckToggles,
     renderFunctionsCollapsed,
+    bindFieldBlur,
     watchActiveDocument,
   ];
   const failures = [];
