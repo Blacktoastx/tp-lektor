@@ -3,6 +3,10 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.2.2 – 2026-10-26
+
+- „Falsch zusätzlich durchstreichen“ funktioniert jetzt auch in InDesign (eigene Linie statt text-decoration, das UXP nicht umsetzt).
+
 ## 2.2.1 – 2026-10-26
 
 - Farbsatz „Kräftig (bisherige Farben)“ heißt jetzt nur noch „Kräftig“.

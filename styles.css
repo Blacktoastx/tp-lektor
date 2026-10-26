@@ -1047,3 +1047,17 @@ body {
   font-size: 9.5px;
   color: var(--text-muted);
 }
+
+/* Eigene Durchstreich-Linie (UXP kennt text-decoration: line-through nicht). */
+.original.struck {
+  position: relative;
+  display: inline-block;
+}
+
+.strike-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 55%;
+  height: 1px;
+}

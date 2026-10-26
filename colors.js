@@ -82,11 +82,20 @@ const loadColorSettings = () => normalizeColorSettings(settings.loadPreferences(
 
 const currentColors = () => resolveColors(loadColorSettings());
 
+// UXP setzt text-decoration: line-through nicht um. Die Linie ist darum ein eigenes Element über dem Text.
+const addStrikeLine = (element, color) => {
+  element.className = `${element.className} struck`;
+  const line = document.createElement("span");
+  line.className = "strike-line";
+  line.style.backgroundColor = color;
+  element.appendChild(line);
+};
+
 // Farben werden direkt an den Elementen gesetzt: zuverlässiger in UXP als dynamische CSS-Variablen.
 const paintChange = (originalElement, correctionElement, colors = currentColors()) => {
   originalElement.style.color = colors.wrong;
-  originalElement.style.textDecoration = colors.strike ? "line-through" : "none";
   correctionElement.style.color = colors.right;
+  if (colors.strike) addStrikeLine(originalElement, colors.wrong);
 };
 
 const isHexColor = (text) => /^#[0-9a-f]{6}$/i.test(text);
