@@ -20,6 +20,14 @@ const ABBREVIATIONS = [
 // Ganze Zahl samt Tausender- und Dezimaltrennern, damit „25%“ nicht nur als „5%“ erfasst wird.
 const NUMBER = "(?<![\\d.,])((?:\\d[\\d.,]*)?\\d)";
 
+// Telefonregeln greifen nur mit einem Hinweis wie „Tel.“ kurz davor. Ohne ihn sind Zahlengruppen
+// meist Kunden-, Konto- oder Artikelnummern.
+const PHONE_CONTEXT = /(?:tel|telefon|fon|fax|mobil|handy|phone|ruf|durchwahl|☎|📞)[^\d]{0,12}$/i;
+const PHONE_CONTEXT_WINDOW = 30;
+
+const hasPhoneContext = (match) =>
+  PHONE_CONTEXT.test(match.input.slice(Math.max(0, match.index - PHONE_CONTEXT_WINDOW), match.index));
+
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Jede Regel: id, hint (nur Hinweis?), pattern (global), fix(match) → Korrektur oder null, erklaerung.
@@ -112,22 +120,22 @@ const RULES = [
   {
     id: "T1",
     hint: false,
-    pattern: new RegExp(`(?<!\\d)(0\\d{2,5})${SPACE}*\\/${SPACE}*(\\d{3,})`, "g"),
-    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    pattern: new RegExp(`(?<!\\d)(0[1-9]\\d{1,4})${SPACE}*\\/${SPACE}*(\\d{3,})`, "g"),
+    fix: (m) => (hasPhoneContext(m) ? `${m[1]}${NBSP}${m[2]}` : null),
     erklaerung: "DIN 5008: Vorwahl und Rufnummer durch ein (geschütztes) Leerzeichen getrennt, ohne Schrägstrich.",
   },
   {
     id: "T1",
     hint: false,
-    pattern: new RegExp(`\\((0\\d{2,5})\\)${SPACE}*(\\d{3,})`, "g"),
-    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    pattern: new RegExp(`\\((0[1-9]\\d{1,4})\\)${SPACE}*(\\d{3,})`, "g"),
+    fix: (m) => (hasPhoneContext(m) ? `${m[1]}${NBSP}${m[2]}` : null),
     erklaerung: "DIN 5008: Vorwahl ohne Klammer, durch ein (geschütztes) Leerzeichen von der Rufnummer getrennt.",
   },
   {
     id: "T3",
     hint: true,
-    pattern: /(?<![\d+])(0\d{2,5} \d{3,}) (\d{1,4})(?![\d]|[.,]\d)/g,
-    fix: (m) => `${m[1]}-${m[2]}`,
+    pattern: /(?<![\d+]|\d )(0[1-9]\d{1,4} \d{3,}) (\d{1,4})(?![\d]|[.,]\d| \d)/g,
+    fix: (m) => (hasPhoneContext(m) ? `${m[1]}-${m[2]}` : null),
     erklaerung: "DIN 5008: Eine Durchwahl wird mit Bindestrich angehängt. Bitte prüfen, ob es eine Durchwahl ist.",
   },
   {
