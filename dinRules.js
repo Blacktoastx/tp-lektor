@@ -138,34 +138,6 @@ const RULES = [
     erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt). Bitte prüfen, ob es keine Nummer (z. B. Durchwahl) ist.",
   },
   {
-    id: "Z2",
-    hint: false,
-    pattern: new RegExp(`(?<![\\d.,])(\\d)${SPACE}(\\d{3})(?![\\d,.]|${SPACE}\\d|${SPACE}*(?:€|EUR|Euro|USD|CHF))`, "g"),
-    fix: (m) => `${m[1]}${m[2]}`,
-    erklaerung: "DIN 5008: Vierstellige Zahlen werden nicht gegliedert.",
-  },
-  {
-    id: "Z3",
-    hint: true,
-    pattern: new RegExp(`(?<![\\d.,€$])(\\d{1,3}(?:\\.\\d{3})+)(?![\\d,.]|${SPACE}*(?:€|EUR|Euro|USD|CHF|\\$))`, "g"),
-    fix: (m) => {
-      const digits = m[1].replace(/\./g, "");
-      return digits.length <= 4 ? digits : digits.replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP);
-    },
-    erklaerung: "DIN 5008: Der Punkt gliedert nur Geldbeträge, sonst Leerzeichen bzw. keine Gliederung. Bitte prüfen, ob es kein Betrag ist.",
-  },
-  {
-    id: "Z1",
-    hint: true,
-    pattern: new RegExp(`(?<![\\d+.,\\/]|\\d${SPACE})([1-9]\\d{4,})(?![\\d]|[.,]\\d)`, "gu"),
-    fix: (m) => {
-      const followedByWord = /^[ \u00A0]\p{Lu}/u.test(m.input.slice(m.index + m[0].length));
-      if (m[1].length === 5 && followedByWord) return null; // vermutlich Postleitzahl
-      return m[1].replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP);
-    },
-    erklaerung: "DIN 5008: Zahlen ab fünf Stellen in Dreiergruppen gliedern. Bitte prüfen, ob es keine Postleitzahl oder Nummer ist.",
-  },
-  {
     id: "Q1",
     hint: false,
     pattern: /"([^"\r\n]{1,200})"/g,
