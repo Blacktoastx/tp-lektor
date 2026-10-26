@@ -12,35 +12,16 @@ const CHECKS = {
     label: "Mikro- & Makrotypografie",
     types: ["Typografie"],
     prompt: `MIKRO- & MAKROTYPOGRAFIE nach DIN 5008:2020 (Typ: Typografie)
-Maßgeblich ist DIN 5008. Wo DIN 5008 und klassische Satzregeln voneinander abweichen, gilt DIN 5008.
+TP Lektor prüft die meisten Typografie-Regeln bereits selbst mit festen Regeln. Melde zu den folgenden Punkten NICHTS, auch wenn du dort etwas findest:
+Leerzeichen (doppelt, vor oder nach Satzzeichen), Zahl und Einheit, Prozent, Grad, Paragraf, Abkürzungen wie „z. B.“, Gedankenstrich zwischen Wörtern, Bis-Strich zwischen Zahlen und Uhrzeiten, „von … bis …“, Uhrzeit- und Datumsformate, Zahlengliederung, Telefonnummern, Anführungszeichen, Apostroph, Auslassungspunkte, Malzeichen.
 
-Striche:
-- Gedankenstrich, Bis-Strich und Streckenstrich sind ein Halbgeviertstrich (–) MIT Leerzeichen davor und danach: „Er kam – wie immer – zu spät“, „07:00 – 19:00 Uhr“, „Leipzig – Dresden“, „S. 10 – 12“.
-- „07:00 – 19:00 Uhr“ ist nach DIN 5008 korrekt. Melde niemals, dass um einen Halbgeviertstrich die Leerzeichen entfernt werden sollen.
-- Steht ein Bindestrich (-) mit Leerzeichen als Gedanken-, Bis- oder Streckenstrich, korrigiere ihn zu „ – “.
-- Steht eine Zeitspanne im Fließtext mit „von“, schreibe „bis“ aus: „von 08:00 bis 12:00 Uhr“ statt „von 08:00 – 12:00 Uhr“.
-- Der Bindestrich (-) steht ohne Leerzeichen beim Koppeln (E-Mail-Adresse) und als Ergänzungsstrich mit Leerzeichen danach (Ein- und Ausgang).
+Prüfe ausschließlich, was nur mit Sprachverständnis erkennbar ist:
+- Streckenstrich zwischen Orten, Namen oder Begriffen als Halbgeviertstrich MIT Leerzeichen: „Leipzig-Dresden“ → „Leipzig – Dresden“, „Bayern-Schalke“ (Spiel) → „Bayern – Schalke“. Echte Komposita wie „Baden-Württemberg“ oder „Max-Planck-Institut“ bleiben.
+- Bindestrich, der als Gedankenstrich gemeint ist, wo kein Leerzeichen auf beiden Seiten steht, z. B. am Satzende („… so war es -“).
+- Ergänzungsstrich: „Ein und Ausgang“ → „Ein- und Ausgang“.
+- Uneinheitliche Schreibweisen desselben Begriffs innerhalb der Absätze (E-Mail/Email) und uneinheitliche Zeichen am Anfang von Aufzählungen.
 
-Leerzeichen:
-- Kein doppeltes Leerzeichen, kein Leerzeichen vor Komma, Punkt, Doppelpunkt, Semikolon, Frage- oder Ausrufezeichen.
-- Leerzeichen zwischen Zahl und Einheit oder Zeichen: 25 %, 10 kg, 20 °C, 100 EUR, § 5. Ohne Leerzeichen nur in Ableitungen wie 100%ig.
-- Mehrteilige Abkürzungen mit Leerzeichen: z. B., d. h., u. a., i. A.
-- Normales, geschütztes (U+00A0) und schmales geschütztes Leerzeichen (U+202F) gelten als gleichwertig. Melde nie, dass nur die Art des Leerzeichens getauscht werden soll.
-
-Zahlen, Datum, Uhrzeit, Telefon:
-- Zahlen mit mehr als vier Stellen in Dreiergruppen von rechts mit Leerzeichen gliedern (12 345 678). Vierstellige Zahlen bleiben ungegliedert (1234). Nur Geldbeträge dürfen auch mit Punkt gegliedert werden (1.234.567,00 EUR).
-- Datum als JJJJ-MM-TT (2026-10-23) oder TT.MM.JJJJ (23.10.2026), auch ausgeschrieben (23. Oktober 2026). Alle drei Formen sind korrekt. Nur innerhalb eines Absatzes uneinheitliche Formate melden.
-- Uhrzeit mit zweistelligen Stunden und Minuten und Doppelpunkt: 07:30 Uhr statt 7.30 Uhr oder 7:30 Uhr. Volle Stunden dürfen auch „14 Uhr“ geschrieben werden.
-- Telefonnummern: Vorwahl und Rufnummer durch ein Leerzeichen getrennt, die Rufnummer selbst ungegliedert, Durchwahl mit Bindestrich: 0341 1234567-12, international +49 341 1234567.
-
-Weitere Zeichen:
-- Auslassungspunkte … (U+2026) statt drei Punkten; Leerzeichen davor, wenn ein ganzes Wort ausgelassen wird.
-- Deutsche Anführungszeichen „…“ bzw. ‚…‘ statt "…" oder “…”; Apostroph ’ statt '.
-
-Makrotypografie auf Textebene:
-- Uneinheitliche Schreibweisen desselben Begriffs innerhalb der Absätze (E-Mail/Email), uneinheitliche Zahlen-, Datums-, Uhrzeit- oder Einheitenformate, uneinheitliche Zeichen am Anfang von Aufzählungen.
-
-Melde nur Stellen, die eindeutig gegen diese Regeln verstoßen. Im Zweifel nichts melden.`,
+Nach DIN 5008 stehen Gedanken-, Bis- und Streckenstrich immer MIT Leerzeichen. Melde niemals, dass diese Leerzeichen entfernt werden sollen. Im Zweifel nichts melden.`,
   },
   editing: {
     label: "Lektorieren",

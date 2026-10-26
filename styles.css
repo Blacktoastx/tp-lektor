@@ -14,6 +14,7 @@
   --red: #e8202a;
   --green: #16a51d;
   --danger: #ff6b6b;
+  --hint: #f0b429;
   --light: #e8e8e8;
   --on-light: #111111;
 }
@@ -33,6 +34,7 @@
   --red: #d01219;
   --green: #11841a;
   --danger: #c62828;
+  --hint: #9a6400;
   --light: #3a3a3a;
   --on-light: #ffffff;
 }
@@ -54,6 +56,7 @@
   --red: #d01219;
   --green: #11841a;
   --danger: #c62828;
+  --hint: #9a6400;
   --light: #3a3a3a;
   --on-light: #ffffff;
   }
@@ -74,6 +77,7 @@
   --red: #d01219;
   --green: #11841a;
   --danger: #c62828;
+  --hint: #9a6400;
   --light: #3a3a3a;
   --on-light: #ffffff;
   }
@@ -984,4 +988,17 @@ body {
   margin-bottom: 3px;
   font-size: 9.5px;
   color: var(--text-muted);
+}
+
+/* ---------- Hinweise (Regeln mit möglichen Ausnahmen) ---------- */
+
+.hint-badge {
+  margin-left: 6px;
+  padding: 0 4px;
+  border: 1px solid var(--hint);
+  border-radius: 3px;
+  color: var(--hint);
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
 }

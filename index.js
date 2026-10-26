@@ -32,9 +32,10 @@ const { checkForType } = require("./checks");
 const { MODEL_OPTIONS, EFFORT_OPTIONS } = require("./models");
 const { showFinding, applyCorrection } = require("./documentActions");
 const { exportCsv, saveTextFile } = require("./csvExport");
-const { renderFindings, renderLoading, renderHistory } = require("./views");
+const { renderFindings, renderLoading, renderHistory, createFindingType } = require("./views");
 const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
+const { runDinRules } = require("./dinRules");
 const { computeStats } = require("./stats");
 const { formatPage } = require("./format");
 const store = require("./store");
@@ -385,9 +386,7 @@ const currentFocusFinding = () => {
 
 const createFocusContent = (finding) => {
   const fragment = document.createElement("div");
-  const type = document.createElement("div");
-  type.className = "finding-type";
-  type.textContent = `${finding.typ}  •  ${finding.area}`;
+  const type = createFindingType(finding);
   const change = document.createElement("div");
   change.className = "change";
   const original = document.createElement("span");
@@ -556,6 +555,8 @@ const verifyFindings = (rawFindings, entriesById, runId, createdAt) => {
       original: raw.original,
       korrektur: raw.korrektur,
       erklaerung: raw.erklaerung,
+      hint: Boolean(raw.hint),
+      ruleId: raw.ruleId || null,
       contextCore: buildContextCore(entry.text, raw.original),
       contextAfter: null,
       status: "open",
@@ -625,7 +626,12 @@ const checkDocument = async () => {
     let done = 0;
     let rejected = 0;
 
-    state.loading.update(0, chunks.length, 0);
+    // Feste DIN-5008-Regeln laufen lokal und liefern bei gleichem Text immer dasselbe Ergebnis.
+    if (preferences.checks.includes("typography")) {
+      found.push(...verifyFindings(runDinRules(entries), entriesById, runId, startedAt));
+    }
+
+    state.loading.update(0, chunks.length, found.length);
     const tasks = chunks.map((chunk, chunkIndex) => async () => {
       const result = await checkChunk({
         apiKey: state.apiKey,

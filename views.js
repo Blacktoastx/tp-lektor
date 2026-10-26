@@ -73,6 +73,13 @@ const createDoneBy = (finding) => {
   );
 };
 
+// Hinweise kommen von Regeln mit möglichen Ausnahmen: Sie sind Vorschläge zum Prüfen, keine sicheren Fehler.
+const createFindingType = (finding) => {
+  const line = createElement("div", "finding-type", `${finding.typ}  •  ${finding.area}`);
+  if (finding.hint) line.appendChild(createElement("span", "hint-badge", "Hinweis"));
+  return line;
+};
+
 const createFindingCard = (finding, handlers) => {
   const isOpen = finding.status === "open";
   const card = createElement("div", "finding");
@@ -99,7 +106,7 @@ const createFindingCard = (finding, handlers) => {
 
   return append(
     card,
-    createElement("div", "finding-type", `${finding.typ}  •  ${finding.area}`),
+    createFindingType(finding),
     createChange(finding.original, finding.korrektur),
     createElement("div", "explanation", finding.erklaerung),
     actions
@@ -384,4 +391,4 @@ const renderHistory = (container, data, stats, onExport, logHandlers) => {
   container.appendChild(createElement("div", "history-actions"));
 };
 
-module.exports = { renderFindings, renderLoading, renderHistory };
+module.exports = { renderFindings, renderLoading, renderHistory, createFindingType };
