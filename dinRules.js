@@ -1,8 +1,10 @@
 // Feste Typografie-Regeln nach DIN 5008 (und Satzpraxis bei Q1–Q4). Sie laufen lokal ohne KI und liefern
 // bei gleichem Text immer dasselbe Ergebnis. Regeln mit unsicheren Ausnahmen melden nur einen Hinweis.
 
-const SPACE = "[ \\u00A0\\u202F]";
-const NARROW_NBSP = " ";
+// Alle Leerzeichen, die InDesign kennt: normal, geschützt, Geviert-Varianten, Achtelgeviert, Haarspatium, schmal geschützt.
+const SPACE = "[ \\u00A0\\u2000-\\u200A\\u202F\\u205F]";
+const NBSP = "\u00A0"; // geschütztes Leerzeichen: kein Zeilenumbruch an dieser Stelle
+const NARROW_NBSP = "\u202F"; // schmales geschütztes Leerzeichen
 
 const pad = (value) => String(value).padStart(2, "0");
 const normalizeTime = (hours, minutes) => `${pad(hours)}:${minutes}`;
@@ -34,15 +36,15 @@ const RULES = [
     id: "S2",
     hint: false,
     pattern: new RegExp(`(?<![\\d:.])(\\d{1,2})[:.](\\d{2})${SPACE}*[-–]${SPACE}*(\\d{1,2})[:.](\\d{2})(?![\\d])`, "g"),
-    fix: (m) => `${normalizeTime(m[1], m[2])} – ${normalizeTime(m[3], m[4])}`,
-    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen, Uhrzeiten zweistellig mit Doppelpunkt.",
+    fix: (m) => `${normalizeTime(m[1], m[2])}${NBSP}– ${normalizeTime(m[3], m[4])}`,
+    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt), Uhrzeiten zweistellig mit Doppelpunkt.",
   },
   {
     id: "S2",
     hint: false,
     pattern: new RegExp(`(?<![\\d:.,])(\\d{1,2})${SPACE}*[-–]${SPACE}*(\\d{1,2})(${SPACE}+Uhr)`, "g"),
-    fix: (m) => `${m[1]} – ${m[2]}${m[3]}`,
-    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen.",
+    fix: (m) => `${m[1]}${NBSP}– ${m[2]}${m[3]}`,
+    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt).",
   },
   {
     id: "U1",
@@ -76,8 +78,8 @@ const RULES = [
     id: "E1",
     hint: false,
     pattern: new RegExp(`${NUMBER}(${UNITS.join("|")})(?![\\p{L}\\d])`, "gu"),
-    fix: (m) => `${m[1]} ${m[2]}`,
-    erklaerung: "DIN 5008: Zwischen Zahl und Einheit oder Zeichen steht ein Leerzeichen.",
+    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    erklaerung: "DIN 5008: Zwischen Zahl und Einheit oder Zeichen steht ein geschütztes Leerzeichen.",
   },
   {
     id: "E3",
@@ -90,8 +92,8 @@ const RULES = [
     id: "E4",
     hint: false,
     pattern: /(§§?)(\d)/g,
-    fix: (m) => `${m[1]} ${m[2]}`,
-    erklaerung: "DIN 5008: Zwischen Paragrafenzeichen und Zahl steht ein Leerzeichen.",
+    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    erklaerung: "DIN 5008: Zwischen Paragrafenzeichen und Zahl steht ein geschütztes Leerzeichen.",
   },
   ...ABBREVIATIONS.map((parts) => ({
     id: "A1",
@@ -104,22 +106,22 @@ const RULES = [
     id: "T2",
     hint: false,
     pattern: new RegExp(`\\+49${SPACE}*\\(0\\)${SPACE}*(\\d+)`, "g"),
-    fix: (m) => `+49 ${m[1]}`,
+    fix: (m) => `+49${NBSP}${m[1]}`,
     erklaerung: "DIN 5008: International entfällt die Null der Vorwahl, ohne Klammer.",
   },
   {
     id: "T1",
     hint: false,
     pattern: new RegExp(`(?<!\\d)(0\\d{2,5})${SPACE}*\\/${SPACE}*(\\d{3,})`, "g"),
-    fix: (m) => `${m[1]} ${m[2]}`,
-    erklaerung: "DIN 5008: Vorwahl und Rufnummer durch ein Leerzeichen getrennt, ohne Schrägstrich.",
+    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    erklaerung: "DIN 5008: Vorwahl und Rufnummer durch ein (geschütztes) Leerzeichen getrennt, ohne Schrägstrich.",
   },
   {
     id: "T1",
     hint: false,
     pattern: new RegExp(`\\((0\\d{2,5})\\)${SPACE}*(\\d{3,})`, "g"),
-    fix: (m) => `${m[1]} ${m[2]}`,
-    erklaerung: "DIN 5008: Vorwahl ohne Klammer, durch ein Leerzeichen von der Rufnummer getrennt.",
+    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    erklaerung: "DIN 5008: Vorwahl ohne Klammer, durch ein (geschütztes) Leerzeichen von der Rufnummer getrennt.",
   },
   {
     id: "T3",
@@ -132,8 +134,8 @@ const RULES = [
     id: "S3",
     hint: true,
     pattern: /(?<![\d\/.,\-–])(\d{1,4})(?: ?[-–] ?|[-–])(\d{1,4})(?![\d\-–]|[.,]\d)/g,
-    fix: (m) => `${m[1]} – ${m[2]}`,
-    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen. Bitte prüfen, ob es keine Nummer (z. B. Durchwahl) ist.",
+    fix: (m) => `${m[1]}${NBSP}– ${m[2]}`,
+    erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt). Bitte prüfen, ob es keine Nummer (z. B. Durchwahl) ist.",
   },
   {
     id: "Z2",
@@ -148,7 +150,7 @@ const RULES = [
     pattern: new RegExp(`(?<![\\d.,€$])(\\d{1,3}(?:\\.\\d{3})+)(?![\\d,.]|${SPACE}*(?:€|EUR|Euro|USD|CHF|\\$))`, "g"),
     fix: (m) => {
       const digits = m[1].replace(/\./g, "");
-      return digits.length <= 4 ? digits : digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      return digits.length <= 4 ? digits : digits.replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP);
     },
     erklaerung: "DIN 5008: Der Punkt gliedert nur Geldbeträge, sonst Leerzeichen bzw. keine Gliederung. Bitte prüfen, ob es kein Betrag ist.",
   },
@@ -159,7 +161,7 @@ const RULES = [
     fix: (m) => {
       const followedByWord = /^[ \u00A0]\p{Lu}/u.test(m.input.slice(m.index + m[0].length));
       if (m[1].length === 5 && followedByWord) return null; // vermutlich Postleitzahl
-      return m[1].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      return m[1].replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP);
     },
     erklaerung: "DIN 5008: Zahlen ab fünf Stellen in Dreiergruppen gliedern. Bitte prüfen, ob es keine Postleitzahl oder Nummer ist.",
   },
@@ -195,15 +197,15 @@ const RULES = [
     id: "Q4",
     hint: true,
     pattern: new RegExp(`(\\d)${SPACE}*[xX]${SPACE}*(\\d)`, "g"),
-    fix: (m) => `${m[1]} × ${m[2]}`,
+    fix: (m) => `${m[1]}${NBSP}×${NBSP}${m[2]}`,
     erklaerung: "Satzpraxis: Malzeichen × statt x. Bitte prüfen, ob es kein Bestandteil einer Bezeichnung ist.",
   },
   {
     id: "S1",
     hint: false,
     pattern: /(\S+) - (\S+)/g,
-    fix: (m) => `${m[1]} – ${m[2]}`,
-    erklaerung: "DIN 5008: Gedankenstrich als Halbgeviertstrich (–) mit Leerzeichen, kein Bindestrich.",
+    fix: (m) => `${m[1]}${NBSP}– ${m[2]}`,
+    erklaerung: "DIN 5008: Gedankenstrich als Halbgeviertstrich (–) mit Leerzeichen, davor geschützt, damit keine Zeile mit dem Strich beginnt.",
   },
   {
     id: "L1",

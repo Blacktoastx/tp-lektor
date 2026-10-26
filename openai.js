@@ -15,6 +15,8 @@ Allgemeine Regeln:
 - "korrektur" ersetzt genau den Text aus "original".
 - "erklaerung" ist ein kurzer Satz auf Deutsch.
 - Melde jede Stelle nur einmal, auch wenn sie zu mehreren Bereichen passt.
+- Sonderleerzeichen (geschützt, schmal geschützt, Achtelgeviert, Haarspatium usw.) sind bewusst gesetzt. Ersetze sie nie durch normale Leerzeichen und melde sie nicht.
+- Preise wie „45,- €“ oder „45,-“ sind so gewollt. Ersetze den Bindestrich dort nie durch einen Halbgeviertstrich.
 - Gibt es nichts zu melden, liefere eine leere Liste.`;
 
 const buildDictionaryPrompt = (terms) =>

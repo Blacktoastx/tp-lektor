@@ -19,7 +19,7 @@ try {
   // Ohne globale Fehler-Events bleibt die Startanzeige als Hinweis stehen.
 }
 
-const { entrypoints } = require("uxp");
+const { entrypoints, versions } = require("uxp");
 const {
   collectParagraphs,
   splitIntoChunks,
@@ -517,13 +517,17 @@ const buildContextCore = (text, original) => {
   return text.slice(Math.max(0, index - CONTEXT_RADIUS), index + original.length + CONTEXT_RADIUS);
 };
 
-const SPACE_VARIANTS = /[\u0020\u00A0\u2009\u202F]/g;
+const SPACE_VARIANTS = /[\u0020\u00A0\u2000-\u200A\u202F\u205F]/g;
 const normalizeSpaces = (text) => text.replace(SPACE_VARIANTS, " ");
 const removeDashSpaces = (text) => normalizeSpaces(text).replace(/ *– */g, "–");
 
 // Feste Sicherung gegen bekannte Fehlgriffe des Modells: Nach DIN 5008 steht der Halbgeviertstrich
 // mit Leerzeichen, und die bloße Art des Leerzeichens ist kein Fehler.
+// Hausregel: Preise wie „45,- €“ behalten den Bindestrich, kein Halbgeviertstrich.
+const changesPriceDash = (raw) => /\d,-/.test(raw.original) && !/\d,-/.test(raw.korrektur);
+
 const contradictsDin5008 = (raw) => {
+  if (changesPriceDash(raw)) return true;
   const onlySpaceKindChanged = normalizeSpaces(raw.original) === normalizeSpaces(raw.korrektur);
   const removesDashSpaces =
     raw.original.includes("–") &&
@@ -812,6 +816,15 @@ const renderSettingsOptions = () => {
   }
 };
 
+// Die Versionsnummer steht nur im Manifest und wird von dort angezeigt.
+const pluginVersion = () => {
+  try {
+    return versions.plugin || "";
+  } catch {
+    return "";
+  }
+};
+
 const openSettings = () => {
   const preferences = settings.loadPreferences();
   settingsDraft.model = preferences.model;
@@ -821,6 +834,7 @@ const openSettings = () => {
   $("settingsApiKey").value = state.apiKey;
   $("settingsCustomModel").value = isKnownModel ? "" : preferences.model;
   $("settingsSaveLogs").checked = preferences.saveRunLogs;
+  $("versionLabel").textContent = `TP Lektor ${pluginVersion()}`.trim();
   hideNotice("settingsNotice");
   renderSettingsOptions();
   showScreen("settings");

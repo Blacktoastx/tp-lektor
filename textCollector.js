@@ -17,7 +17,7 @@ const locate = (textObject) => {
   }
   const page = frames[0].parentPage;
   if (!page) {
-    return { pageLabel: "Montagefläche", pageSortKey: UNPLACED_SORT_KEY + 1 };
+    return { pageLabel: "Montagefläche", pageSortKey: UNPLACED_SORT_KEY + 1, isOnPasteboard: true };
   }
   if (page.parent.constructorName === "MasterSpread") {
     return { pageLabel: `Musterseite ${page.parent.name}`, pageSortKey: UNPLACED_SORT_KEY };
@@ -37,7 +37,8 @@ const collectParagraphs = (doc, range) => {
       const text = cleanText(paragraph.contents);
       if (!text) continue;
       const location = fixedLocation || locate(paragraph);
-      if (!isInRange(location, range)) continue;
+      // Text auf der Montagefläche gehört nicht zum Druckdokument und wird nicht geprüft.
+      if (location.isOnPasteboard || !isInRange(location, range)) continue;
       entries.push({
         id: `P${entries.length + 1}`,
         text,
