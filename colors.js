@@ -29,7 +29,7 @@ const PRESETS = [
   },
   {
     id: "classic",
-    label: "Kräftig (bisherige Farben)",
+    label: "Kräftig",
     hint: "Satte Farben, auf Grau aber schwer lesbar",
     dark: { wrong: "#e8202a", right: "#16a51d" },
     light: { wrong: "#d01219", right: "#11841a" },

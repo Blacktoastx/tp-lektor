@@ -3,9 +3,13 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.2.1 – 2026-10-26
+
+- Farbsatz „Kräftig (bisherige Farben)“ heißt jetzt nur noch „Kräftig“.
+
 ## 2.2.0 – 2026-10-26
 
-- Farben für „falsch“ und „richtig“ einstellbar (Einstellungen → Farben): Standard, Hoher Kontrast, Orange/Blau, bisherige Farben oder eigene Hex-Werte, getrennt für helle und dunkle Oberflächen.
+- Farben für „falsch“ und „richtig“ einstellbar (Einstellungen → Farben): Standard, Hoher Kontrast, Orange/Blau, Kräftig oder eigene Hex-Werte, getrennt für helle und dunkle Oberflächen.
 - Neuer Standard mit gut lesbaren Farben auf dem InDesign-Grau (Kontrast mind. 4,5 : 1 statt bisher 1,7 bzw. 2,4 : 1).
 - Option „Falsch zusätzlich durchstreichen“.
 - Live-Vorschau mit Kontrastwert direkt auf dem Panel-Hintergrund.
