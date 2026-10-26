@@ -41,6 +41,7 @@ const loadPreferences = () => {
     functionsCollapsed: Boolean(stored.functionsCollapsed),
     dictionaryCategory: stored.dictionaryCategory || "allgemein",
     saveRunLogs: stored.saveRunLogs === true,
+    colors: stored.colors || null,
   };
 };
 

@@ -1002,3 +1002,48 @@ body {
   font-weight: 700;
   text-transform: uppercase;
 }
+
+/* ---------- Farbeinstellungen ---------- */
+
+.custom-colors {
+  margin: 4px 0 6px 22px;
+}
+
+.color-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.color-label {
+  width: 44px;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border: 1px solid var(--field-border);
+  border-radius: 3px;
+}
+
+.color-input {
+  width: 80px;
+  margin: 0;
+}
+
+.color-preview {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+}
+
+.color-preview .change {
+  margin-top: 0;
+}
+
+.contrast-line {
+  margin-top: 4px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}

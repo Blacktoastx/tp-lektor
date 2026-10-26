@@ -1,4 +1,5 @@
 const { CHECKS } = require("./checks");
+const colors = require("./colors");
 const {
   formatTime,
   formatDateTime,
@@ -51,13 +52,17 @@ const createAvatar = (name) => {
   return avatar;
 };
 
-const createChange = (original, korrektur) =>
-  append(
+const createChange = (original, korrektur, changeColors) => {
+  const originalElement = createElement("span", "original", original);
+  const correctionElement = createElement("span", "correction", korrektur || "(entfernen)");
+  colors.paintChange(originalElement, correctionElement, changeColors);
+  return append(
     createElement("div", "change"),
-    createElement("span", "original", original),
+    originalElement,
     createElement("span", "arrow", "  →  "),
-    createElement("span", "correction", korrektur || "(entfernen)")
+    correctionElement
   );
+};
 
 const createDoneBy = (finding) => {
   const isApplied = finding.status === "applied";
@@ -391,4 +396,4 @@ const renderHistory = (container, data, stats, onExport, logHandlers) => {
   container.appendChild(createElement("div", "history-actions"));
 };
 
-module.exports = { renderFindings, renderLoading, renderHistory, createFindingType };
+module.exports = { renderFindings, renderLoading, renderHistory, createFindingType, createChange };

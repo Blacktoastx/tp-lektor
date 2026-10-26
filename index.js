@@ -32,7 +32,8 @@ const { checkForType } = require("./checks");
 const { MODEL_OPTIONS, EFFORT_OPTIONS } = require("./models");
 const { showFinding, applyCorrection } = require("./documentActions");
 const { exportCsv, saveTextFile } = require("./csvExport");
-const { renderFindings, renderLoading, renderHistory, createFindingType } = require("./views");
+const { renderFindings, renderLoading, renderHistory, createFindingType, createChange } = require("./views");
+const colors = require("./colors");
 const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
 const { runDinRules } = require("./dinRules");
@@ -387,20 +388,7 @@ const currentFocusFinding = () => {
 const createFocusContent = (finding) => {
   const fragment = document.createElement("div");
   const type = createFindingType(finding);
-  const change = document.createElement("div");
-  change.className = "change";
-  const original = document.createElement("span");
-  original.className = "original";
-  original.textContent = finding.original;
-  const arrow = document.createElement("span");
-  arrow.className = "arrow";
-  arrow.textContent = "  →  ";
-  const correction = document.createElement("span");
-  correction.className = "correction";
-  correction.textContent = finding.korrektur || "(entfernen)";
-  change.appendChild(original);
-  change.appendChild(arrow);
-  change.appendChild(correction);
+  const change = createChange(finding.original, finding.korrektur);
   const explanation = document.createElement("div");
   explanation.className = "explanation";
   explanation.textContent = finding.erklaerung;
@@ -789,7 +777,74 @@ const createOption = (option, isOn, onSelect) => {
   return row;
 };
 
-const settingsDraft = { model: "", effort: "" };
+const settingsDraft = { model: "", effort: "", colors: null };
+
+// ---------- Farbeinstellungen ----------
+
+const formatRatio = (ratio) => `${ratio.toFixed(1).replace(".", ",")} : 1`;
+
+const describeContrast = (hex) => {
+  const ratio = colors.contrastRatio(hex);
+  return `${formatRatio(ratio)} ${ratio >= colors.GOOD_CONTRAST ? "✓" : "– schwach"}`;
+};
+
+const renderColorPreview = () => {
+  const resolved = colors.resolveColors(settingsDraft.colors);
+  const preview = $("colorPreview");
+  preview.innerHTML = "";
+  preview.appendChild(createChange("betriebs-internen", "betriebsinternen", resolved));
+  const contrast = document.createElement("div");
+  contrast.className = "contrast-line";
+  contrast.textContent = `Kontrast: falsch ${describeContrast(resolved.wrong)} · richtig ${describeContrast(resolved.right)} (ab 4,5 : 1 gut lesbar)`;
+  preview.appendChild(contrast);
+  $("swatchWrong").style.backgroundColor = resolved.wrong;
+  $("swatchRight").style.backgroundColor = resolved.right;
+};
+
+const renderColorSettings = () => {
+  const draft = settingsDraft.colors;
+  const list = $("colorPresetOptions");
+  list.innerHTML = "";
+  for (const preset of colors.PRESETS) {
+    list.appendChild(
+      createOption(preset, draft.preset === preset.id, () => {
+        draft.preset = preset.id;
+        renderColorSettings();
+      })
+    );
+  }
+
+  const isCustom = draft.preset === "custom";
+  const mode = colors.currentMode();
+  $("customColorFields").style.display = isCustom ? "block" : "none";
+  $("customColorModeHint").textContent =
+    mode === "light" ? "Gilt für helle InDesign-Oberflächen." : "Gilt für dunkle InDesign-Oberflächen.";
+  $("colorWrong").value = draft.custom[mode].wrong;
+  $("colorRight").value = draft.custom[mode].right;
+  $("colorStrike").checked = draft.strike;
+  renderColorPreview();
+};
+
+const updateCustomColor = (key, input) => {
+  const value = input.value.trim();
+  if (!colors.isHexColor(value)) return;
+  settingsDraft.colors.custom[colors.currentMode()][key] = value.toLowerCase();
+  renderColorPreview();
+};
+
+const bindColorSettings = () => {
+  $("colorWrong").addEventListener("input", () => updateCustomColor("wrong", $("colorWrong")));
+  $("colorRight").addEventListener("input", () => updateCustomColor("right", $("colorRight")));
+  $("colorStrike").addEventListener("change", () => {
+    settingsDraft.colors.strike = $("colorStrike").checked;
+    renderColorPreview();
+  });
+  $("colorStrikeLabel").addEventListener("click", () => {
+    $("colorStrike").checked = !$("colorStrike").checked;
+    settingsDraft.colors.strike = $("colorStrike").checked;
+    renderColorPreview();
+  });
+};
 
 const renderSettingsOptions = () => {
   const modelList = $("modelOptions");
@@ -829,6 +884,7 @@ const openSettings = () => {
   const preferences = settings.loadPreferences();
   settingsDraft.model = preferences.model;
   settingsDraft.effort = preferences.effort;
+  settingsDraft.colors = colors.normalizeColorSettings(preferences.colors);
   const isKnownModel = MODEL_OPTIONS.some((option) => option.id === preferences.model);
   $("settingsName").value = preferences.userName;
   $("settingsApiKey").value = state.apiKey;
@@ -837,6 +893,7 @@ const openSettings = () => {
   $("versionLabel").textContent = `TP Lektor ${pluginVersion()}`.trim();
   hideNotice("settingsNotice");
   renderSettingsOptions();
+  renderColorSettings();
   showScreen("settings");
 };
 
@@ -857,6 +914,7 @@ const saveSettings = async () => {
     model: customModel || settingsDraft.model,
     effort: settingsDraft.effort,
     saveRunLogs: $("settingsSaveLogs").checked,
+    colors: settingsDraft.colors,
   });
   showScreen("main");
   render();
@@ -924,7 +982,9 @@ const applyTheme = () => {
   try {
     state.theme = currentTheme();
     const root = $("mainRoot");
-    const className = LIGHT_THEMES.includes(state.theme) ? "panel-root light-theme" : "panel-root";
+    const isLight = LIGHT_THEMES.includes(state.theme);
+    colors.setLightMode(isLight);
+    const className = isLight ? "panel-root light-theme" : "panel-root";
     if (root.className !== className) root.className = className;
     applyThemeIcons();
   } catch (error) {
@@ -937,8 +997,11 @@ const watchTheme = () => {
   applyTheme();
 };
 
+// Die Fehlerfarben hängen am Farbschema und stehen direkt an den Elementen, darum nach einem Wechsel neu zeichnen.
 const refreshThemeIfChanged = () => {
-  if (currentTheme() !== state.theme) applyTheme();
+  if (currentTheme() === state.theme) return;
+  applyTheme();
+  render();
 };
 
 // ---------- Start ----------
@@ -1016,6 +1079,7 @@ const initPanel = async () => {
     bindFocusEvents,
     renderCheckToggles,
     renderFunctionsCollapsed,
+    bindColorSettings,
     bindFieldBlur,
     watchActiveDocument,
   ];

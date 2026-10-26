@@ -129,6 +129,31 @@
         </div>
 
         <div class="settings-section">
+          <div class="section-title">Farben für falsch und richtig</div>
+          <div id="colorPresetOptions" class="option-list"></div>
+          <div id="customColorFields" class="custom-colors">
+            <div id="customColorModeHint" class="field-hint"></div>
+            <div class="color-row">
+              <span class="color-label">Falsch</span>
+              <div id="swatchWrong" class="swatch"></div>
+              <input id="colorWrong" class="color-input" type="text" />
+            </div>
+            <div class="color-row">
+              <span class="color-label">Richtig</span>
+              <div id="swatchRight" class="swatch"></div>
+              <input id="colorRight" class="color-input" type="text" />
+            </div>
+            <div class="field-hint">Als Hex-Wert, z. B. #FFB4AB.</div>
+          </div>
+          <div class="setting-row">
+            <input type="checkbox" id="colorStrike" />
+            <span id="colorStrikeLabel" class="setting-label">Falsch zusätzlich durchstreichen</span>
+          </div>
+          <div class="field-label">Vorschau auf dem Panel-Hintergrund</div>
+          <div id="colorPreview" class="color-preview"></div>
+        </div>
+
+        <div class="settings-section">
           <div class="section-title">Prüfprotokoll</div>
           <div class="setting-row">
             <input type="checkbox" id="settingsSaveLogs" />
