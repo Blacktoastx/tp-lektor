@@ -38,6 +38,7 @@ const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
 const { runDinRules } = require("./dinRules");
 const { computeStats } = require("./stats");
+const updater = require("./updater");
 const { formatPage } = require("./format");
 const store = require("./store");
 const settings = require("./settings");
@@ -1065,6 +1066,70 @@ const bindEvents = () => {
   });
 };
 
+// ---------- Updates über GitHub ----------
+
+const updateState = { latest: null };
+
+const formatReleaseNotes = (notes) =>
+  String(notes || "")
+    .split("\n")
+    .map((line) => line.replace(/^#+\s*/, "").replace(/^\s*[-*]\s+/, "• ").replace(/\*\*/g, "").trimEnd())
+    .filter((line) => line.trim() !== "")
+    .join("\n")
+    .slice(0, 1200);
+
+const showUpdateBanner = (latest) => {
+  updateState.latest = latest;
+  $("updateTitle").textContent = `Version ${latest.version} verfügbar (installiert: ${pluginVersion()})`;
+  $("updateNotes").textContent = formatReleaseNotes(latest.notes);
+  $("updateBanner").className = "update-banner visible";
+};
+
+const hideUpdateBanner = () => {
+  $("updateBanner").className = "update-banner";
+};
+
+const checkForUpdatesInBackground = async () => {
+  try {
+    const result = await updater.checkForUpdate(pluginVersion());
+    if (result.available && !updater.isDismissed(result.latest.version)) showUpdateBanner(result.latest);
+  } catch (error) {
+    // Ohne Internet oder bei GitHub-Störungen still bleiben; die Prüfung läuft beim nächsten Start erneut.
+    console.warn("Update-Prüfung fehlgeschlagen:", error);
+  }
+};
+
+const checkForUpdatesNow = async () => {
+  if (!updater.isConfigured()) {
+    showNotice("Für diese Version ist keine Update-Quelle hinterlegt.", "info", "settingsNotice");
+    return;
+  }
+  showNotice("Suche nach Updates …", "info", "settingsNotice");
+  const result = await updater.checkForUpdate(pluginVersion(), { force: true });
+  if (result.available) {
+    showUpdateBanner(result.latest);
+    showNotice(`Version ${result.latest.version} ist verfügbar. Der Hinweis steht oben in der Hauptansicht.`, "info", "settingsNotice");
+  } else if (result.latest) {
+    showNotice(`TP Lektor ist aktuell (${pluginVersion()}).`, "info", "settingsNotice");
+  } else {
+    showNotice("Auf GitHub ist noch keine Version veröffentlicht.", "info", "settingsNotice");
+  }
+};
+
+const downloadUpdate = async () => {
+  const { latest } = updateState;
+  await updater.openInBrowser(latest ? latest.downloadUrl : updater.releasesPageUrl());
+};
+
+const bindUpdateEvents = () => {
+  $("btnUpdateDownload").addEventListener("click", runSafely(downloadUpdate));
+  $("btnUpdateLater").addEventListener("click", () => {
+    if (updateState.latest) updater.dismiss(updateState.latest.version);
+    hideUpdateBanner();
+  });
+  $("btnCheckUpdate").addEventListener("click", runSafely(checkForUpdatesNow, "settingsNotice"));
+};
+
 let initialized = false;
 
 const initPanel = async () => {
@@ -1081,6 +1146,7 @@ const initPanel = async () => {
     renderFunctionsCollapsed,
     bindColorSettings,
     bindFieldBlur,
+    bindUpdateEvents,
     watchActiveDocument,
   ];
   const failures = [];
@@ -1105,6 +1171,7 @@ const initPanel = async () => {
   } else {
     bootStatusElement.style.display = "none";
   }
+  checkForUpdatesInBackground();
 };
 
 const startPanel = () =>

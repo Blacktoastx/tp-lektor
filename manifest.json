@@ -2,7 +2,7 @@
   "manifestVersion": 5,
   "id": "de.tpmarketing.indesign.tplektor",
   "name": "TP Lektor",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "main": "index.html",
   "host": {
     "app": "ID",
@@ -70,10 +70,17 @@
   "requiredPermissions": {
     "network": {
       "domains": [
-        "https://api.openai.com"
+        "https://api.openai.com",
+        "https://api.github.com"
       ]
     },
-    "localFileSystem": "request"
+    "localFileSystem": "request",
+    "launchProcess": {
+      "schemes": [
+        "https"
+      ],
+      "extensions": []
+    }
   },
   "icons": [
     {

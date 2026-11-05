@@ -1,0 +1,50 @@
+# Baut bei jedem Versions-Tag (v2.3.0 usw.) die .ccx-Datei und veröffentlicht sie als GitHub Release.
+# Das Plugin fragt dieses Release beim Start ab und zeigt den Kollegen den Update-Hinweis.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version im Manifest prüfen
+        run: |
+          MANIFEST_VERSION=$(jq -r .version manifest.json)
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$MANIFEST_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME passt nicht zur Version $MANIFEST_VERSION in manifest.json" >&2
+            exit 1
+          fi
+          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+
+      - name: .ccx-Paket bauen
+        run: |
+          mkdir -p dist
+          zip -r "dist/TP-Lektor-${VERSION}.ccx" . \
+            -x ".git/*" ".github/*" "dist/*" ".gitignore" "README.md" "*.DS_Store"
+
+      - name: Änderungen aus CHANGELOG.md lesen
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## " v "( |$)" { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > dist/notes.md
+          cat dist/notes.md
+
+      - name: Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/TP-Lektor-${VERSION}.ccx" \
+            --title "TP Lektor ${VERSION}" \
+            --notes-file dist/notes.md
