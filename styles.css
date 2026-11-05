@@ -311,6 +311,16 @@ body {
   margin: 0 8px 0 0;
 }
 
+.selection-row {
+  margin-top: 4px;
+  border-top: 1px solid var(--divider);
+}
+
+/* Bei „Nur Auswahl“ gilt der Seitenbereich nicht. */
+.range.inactive {
+  opacity: 0.4;
+}
+
 .range {
   display: flex;
   flex-direction: column;
@@ -1112,4 +1122,31 @@ body {
   text-align: center;
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* ---------- Dokument ohne offene Fehler ---------- */
+
+.clean-state {
+  margin-top: 11px;
+  padding: 9.5px;
+  border: 1px solid var(--green);
+  border-radius: 6.5px;
+}
+
+.clean-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--green);
+}
+
+.clean-text {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text);
+}
+
+.clean-meta {
+  margin-top: 4px;
+  font-size: 9.5px;
+  color: var(--text-dim);
 }

@@ -3,6 +3,12 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.5.0 – 2026-11-05
+
+- Neue Option „Nur Auswahl“ unter Funktionen: geprüft wird nur der markierte Text oder der Text in den ausgewählten Textrahmen (auch in Gruppen und Tabellenzellen). Steht nur der Cursor im Text, gilt der ganze Rahmen. Der Seitenbereich ist dann ausgegraut.
+- Eine Auswahl-Prüfung ersetzt nur die offenen Fehler, die im geprüften Text liegen. Alle anderen bleiben stehen.
+- Sind keine Fehler mehr offen, steht da jetzt, wie oft das Dokument schon geprüft wurde, wann zuletzt, von wem und welcher Bereich.
+
 ## 2.4.0 – 2026-11-05
 
 - Update mit einem Klick: „Jetzt installieren“ lädt die neue Version direkt im Plugin und öffnet sie in Creative Cloud. Kein Umweg über GitHub oder den Download-Ordner mehr.

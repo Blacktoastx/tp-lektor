@@ -22,6 +22,7 @@ try {
 const { entrypoints, versions } = require("uxp");
 const {
   collectParagraphs,
+  collectSelection,
   splitIntoChunks,
   getActiveDocument,
   findActiveDocument,
@@ -32,7 +33,14 @@ const { checkForType } = require("./checks");
 const { MODEL_OPTIONS, EFFORT_OPTIONS } = require("./models");
 const { showFinding, applyCorrection } = require("./documentActions");
 const { exportCsv, saveTextFile } = require("./csvExport");
-const { renderFindings, renderLoading, renderHistory, createFindingType, createChange } = require("./views");
+const {
+  renderFindings,
+  renderLoading,
+  renderHistory,
+  createFindingType,
+  createChange,
+  createCleanState,
+} = require("./views");
 const colors = require("./colors");
 const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
@@ -168,7 +176,7 @@ const render = () => {
 
   if (state.activeTab === "open") {
     const open = sortByPage(data.findings.filter((finding) => finding.status === "open"));
-    const emptyText = data.runs.length > 0 ? "Keine offenen Fehler. 🎉" : "Noch keine Prüfung durchgeführt.";
+    const emptyText = data.runs.length > 0 ? createCleanState(data.runs) : "Noch keine Prüfung durchgeführt.";
     renderFindings(container, open, findingHandlers, emptyText);
     restoreScroll();
     return;
@@ -594,7 +602,13 @@ const checkDocument = async () => {
   const preferences = settings.loadPreferences();
   if (preferences.checks.length === 0) throw new Error("Bitte mindestens eine Funktion auswählen.");
   const doc = getActiveDocument();
-  const range = resolvePageRange(doc, $("pageFrom").value.trim(), $("pageTo").value.trim());
+  const onlySelection = preferences.onlySelection;
+  const range = onlySelection ? null : resolvePageRange(doc, $("pageFrom").value.trim(), $("pageTo").value.trim());
+  // Die Auswahl sofort lesen: Während der Prüfung kann der Nutzer schon etwas anderes anklicken.
+  const selectionEntries = onlySelection ? collectSelection() : null;
+  if (selectionEntries && selectionEntries.length === 0) {
+    throw new Error("In der Auswahl wurde kein Text gefunden.");
+  }
 
   state.running = true;
   state.cancelled = false;
@@ -604,7 +618,7 @@ const checkDocument = async () => {
 
   try {
     await wait(50); // UI zeichnen lassen, bevor das Einsammeln den Thread blockiert
-    const entries = collectParagraphs(doc, range);
+    const entries = selectionEntries || collectParagraphs(doc, range);
     if (entries.length === 0) throw new Error("Im gewählten Bereich wurde kein Text gefunden.");
 
     const runId = String(Date.now());
@@ -662,14 +676,20 @@ const checkDocument = async () => {
       model: preferences.model,
       effort: preferences.effort,
       checks: preferences.checks,
-      range,
-      pagesChecked: range ? range.to - range.from + 1 : doc.pages.length,
+      range: onlySelection ? { selection: true, paragraphs: entries.length } : range,
+      pagesChecked: onlySelection
+        ? new Set(entries.map((entry) => entry.pageLabel)).size
+        : range
+        ? range.to - range.from + 1
+        : doc.pages.length,
       rejected,
       dictionaryHidden,
       usage,
       cancelled: state.cancelled,
     };
-    const replaceScope = state.cancelled ? null : { checks: preferences.checks, range };
+    // Bei „Nur Auswahl“ ersetzt die Prüfung nur offene Fehler, deren Textstelle im geprüften Text liegt.
+    const scopeTexts = onlySelection ? entries.map((entry) => entry.text) : null;
+    const replaceScope = state.cancelled ? null : { checks: preferences.checks, range, texts: scopeTexts };
     const log = {
       model: preferences.model,
       effort: preferences.effort,
@@ -695,18 +715,29 @@ const checkDocument = async () => {
 
 // ---------- Funktionen & Seitenbereich ----------
 
-const checkboxes = () => $$(".check-row input");
+const checkboxes = () => Array.from($$(".check-row input")).filter((checkbox) => checkbox.dataset.check);
+
+const renderRangeState = (onlySelection) => {
+  $("rangePanel").className = onlySelection ? "range inactive" : "range";
+  $("pageFrom").disabled = onlySelection;
+  $("pageTo").disabled = onlySelection;
+};
 
 const renderCheckToggles = () => {
   const { checks } = settings.loadPreferences();
   for (const checkbox of checkboxes()) checkbox.checked = checks.includes(checkbox.dataset.check);
+  const { onlySelection } = settings.loadPreferences();
+  $("check-selection").checked = onlySelection;
+  renderRangeState(onlySelection);
 };
 
 const saveCheckToggles = () => {
   const checks = Array.from(checkboxes())
     .filter((checkbox) => checkbox.checked)
     .map((checkbox) => checkbox.dataset.check);
-  settings.savePreferences({ checks });
+  const onlySelection = $("check-selection").checked;
+  settings.savePreferences({ checks, onlySelection });
+  renderRangeState(onlySelection);
 };
 
 const renderFunctionsCollapsed = () => {
@@ -1036,6 +1067,7 @@ const bindEvents = () => {
     renderFunctionsCollapsed();
   });
   for (const checkbox of checkboxes()) checkbox.addEventListener("change", saveCheckToggles);
+  $("check-selection").addEventListener("change", saveCheckToggles);
   for (const label of $$(".check-label")) {
     label.addEventListener("click", () => {
       const checkbox = $(label.dataset.for);

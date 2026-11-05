@@ -118,9 +118,32 @@ const createFindingCard = (finding, handlers) => {
   );
 };
 
+// Anzeige, wenn das Dokument schon geprüft wurde und nichts mehr offen ist.
+const createCleanState = (runs) => {
+  const completed = runs.filter((run) => !run.cancelled);
+  const last = completed[completed.length - 1] || runs[runs.length - 1];
+  const count = completed.length;
+  const box = createElement("div", "clean-state");
+  const title = createElement("div", "clean-title", "Keine offenen Fehler");
+  // Gleiche Farbe wie „richtig“ in den Korrekturen: in den Einstellungen auf gute Lesbarkeit abgestimmt.
+  const { right } = colors.currentColors();
+  title.style.color = right;
+  box.style.borderColor = right;
+  return append(
+    box,
+    title,
+    createElement("div", "clean-text", `Bereits ${count}-mal geprüft. Alle gefundenen Fehler sind bearbeitet.`),
+    createElement(
+      "div",
+      "clean-meta",
+      `Letzte Prüfung: ${formatDateTime(last.startedAt)} · ${last.user || "Unbekannt"} · ${formatRange(last.range)}`
+    )
+  );
+};
+
 const renderFindings = (container, findings, handlers, emptyText) => {
   if (findings.length === 0) {
-    container.appendChild(createElement("div", "empty", emptyText));
+    container.appendChild(typeof emptyText === "string" ? createElement("div", "empty", emptyText) : emptyText);
     return;
   }
   let currentPage = null;
@@ -396,4 +419,11 @@ const renderHistory = (container, data, stats, onExport, logHandlers) => {
   container.appendChild(createElement("div", "history-actions"));
 };
 
-module.exports = { renderFindings, renderLoading, renderHistory, createFindingType, createChange };
+module.exports = {
+  renderFindings,
+  renderLoading,
+  renderHistory,
+  createFindingType,
+  createChange,
+  createCleanState,
+};

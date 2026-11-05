@@ -20,8 +20,11 @@ const formatUsd = (value) => (value < 0.01 ? "< 0,01 $" : `${formatDecimal(value
 
 const formatPage = (pageLabel) => (/^\d/.test(pageLabel) ? `Seite ${pageLabel}` : pageLabel);
 
-const formatRange = (range) =>
-  range ? `Seiten ${range.fromLabel}–${range.toLabel}` : "Ganzes Dokument";
+const formatRange = (range) => {
+  if (!range) return "Ganzes Dokument";
+  if (range.selection) return `Auswahl (${range.paragraphs} ${range.paragraphs === 1 ? "Absatz" : "Absätze"})`;
+  return `Seiten ${range.fromLabel}–${range.toLabel}`;
+};
 
 module.exports = {
   formatTime,

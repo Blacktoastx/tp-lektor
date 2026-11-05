@@ -73,9 +73,13 @@
             <input type="checkbox" id="check-editing" data-check="editing" />
             <span class="check-label" data-for="check-editing" title="Lektorieren">Lektorieren</span>
           </div>
+          <div class="check-row selection-row">
+            <input type="checkbox" id="check-selection" data-option="selection" />
+            <span class="check-label" data-for="check-selection" title="Nur den markierten Text bzw. die ausgewählten Textrahmen prüfen">Nur Auswahl</span>
+          </div>
         </div>
 
-        <div class="range">
+        <div id="rangePanel" class="range">
           <div class="range-title">Seite</div>
           <!-- Bewusst ohne placeholder: InDesign schneidet native Felder mit Platzhalter an. -->
           <div class="range-row">

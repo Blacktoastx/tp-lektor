@@ -40,9 +40,11 @@ const save = (doc, data) => doc.insertLabel(LABEL_KEY, JSON.stringify(data));
 
 const findingKey = (finding) => `${finding.original}|${finding.korrektur}|${finding.contextCore}`;
 
-const isInScope = (finding, scope) =>
-  scope.checks.includes(finding.check) &&
-  (!scope.range || (finding.pageSortKey >= scope.range.from && finding.pageSortKey <= scope.range.to));
+const isInScope = (finding, scope) => {
+  if (!scope.checks.includes(finding.check)) return false;
+  if (scope.texts) return scope.texts.some((text) => text.includes(finding.contextCore || finding.original));
+  return !scope.range || (finding.pageSortKey >= scope.range.from && finding.pageSortKey <= scope.range.to);
+};
 
 // Eine neue Prüfung ersetzt die offenen Fehler, die sie selbst abdeckt (gleiche Funktionen, gleicher Seitenbereich).
 // Bei abgebrochenen Prüfungen bleibt alles Alte stehen, es kommen nur neue Funde dazu.

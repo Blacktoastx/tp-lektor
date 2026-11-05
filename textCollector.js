@@ -68,6 +68,112 @@ const collectParagraphs = (doc, range) => {
   return entries.sort((a, b) => a.pageSortKey - b.pageSortKey);
 };
 
+// ---------- Nur Auswahl ----------
+
+const TEXT_SELECTION_TYPES = ["Character", "Word", "Line", "Paragraph", "Text", "TextStyleRange", "TextColumn"];
+const FRAME_TYPES = ["TextFrame", "TextPath"];
+
+const addEntry = (entries, text, paragraph, area) => {
+  const location = locate(paragraph);
+  if (location.isOnPasteboard) return;
+  entries.push({
+    id: `P${entries.length + 1}`,
+    text,
+    paragraph,
+    area,
+    pageLabel: location.pageLabel,
+    pageSortKey: location.pageSortKey,
+  });
+};
+
+// Markierter Text: nur der markierte Teil jedes Absatzes wird geprüft, nicht der ganze Absatz.
+const addMarkedText = (entries, textObject) => {
+  const paragraphs = elementsOf(textObject.paragraphs);
+  const pieces = String(textObject.contents).split("\r");
+  paragraphs.forEach((paragraph, index) => {
+    const text = cleanText(pieces[index] || "");
+    if (text) addEntry(entries, text, paragraph, "Auswahl");
+  });
+};
+
+// Ganzer Rahmen: nur der Text, der in diesem Rahmen steht (bei verketteten Rahmen nicht der Rest der Story).
+const addFrameText = (entries, frame) => {
+  const frameText = frame.texts.item(0);
+  for (const paragraph of elementsOf(frameText.paragraphs)) {
+    const text = cleanText(paragraph.contents);
+    if (text) addEntry(entries, text, paragraph, "Text");
+  }
+  for (const table of elementsOf(frameText.tables)) {
+    for (const cell of elementsOf(table.cells)) {
+      for (const paragraph of elementsOf(cell.paragraphs)) {
+        const text = cleanText(paragraph.contents);
+        if (text) addEntry(entries, text, paragraph, "Tabelle");
+      }
+    }
+  }
+};
+
+const addCells = (entries, cells) => {
+  for (const cell of cells) {
+    for (const paragraph of elementsOf(cell.paragraphs)) {
+      const text = cleanText(paragraph.contents);
+      if (text) addEntry(entries, text, paragraph, "Tabelle");
+    }
+  }
+};
+
+const addSelectionItem = (entries, item) => {
+  const type = item.constructorName;
+  if (TEXT_SELECTION_TYPES.includes(type)) {
+    addMarkedText(entries, item);
+  } else if (type === "InsertionPoint") {
+    // Nur der Cursor steht im Text: dann gilt der Rahmen, in dem er steht.
+    const frames = item.parentTextFrames;
+    if (frames && frames.length > 0) addFrameText(entries, frames[0]);
+  } else if (FRAME_TYPES.includes(type)) {
+    addFrameText(entries, item);
+  } else if (type === "Cell") {
+    addCells(entries, elementsOf(item.cells));
+  } else if (type === "Table") {
+    addCells(entries, elementsOf(item.cells));
+  } else if (item.allPageItems) {
+    // Gruppen und andere Container: alle Textrahmen darin.
+    for (const child of item.allPageItems) {
+      if (FRAME_TYPES.includes(child.constructorName)) addFrameText(entries, child);
+    }
+  }
+};
+
+const paragraphKey = (paragraph) => {
+  try {
+    return `${paragraph.parentStory.id}:${paragraph.index}`;
+  } catch {
+    return "";
+  }
+};
+
+const collectSelection = () => {
+  const selection = app.selection || [];
+  if (selection.length === 0) {
+    throw new Error("Nichts ausgewählt. Bitte Text markieren oder einen Textrahmen auswählen.");
+  }
+  const entries = [];
+  for (const item of selection) addSelectionItem(entries, item);
+  // Derselbe Absatz kann über zwei ausgewählte Rahmen doppelt hereinkommen.
+  const seen = new Set();
+  const unique = entries.filter((entry) => {
+    const key = `${paragraphKey(entry.paragraph)}|${entry.text}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  unique.sort((a, b) => a.pageSortKey - b.pageSortKey);
+  unique.forEach((entry, index) => {
+    entry.id = `P${index + 1}`;
+  });
+  return unique;
+};
+
 const splitIntoChunks = (entries, maxChars) => {
   const chunks = [];
   let current = [];
@@ -118,6 +224,7 @@ const resolvePageRange = (doc, fromValue, toValue) => {
 
 module.exports = {
   collectParagraphs,
+  collectSelection,
   splitIntoChunks,
   getActiveDocument,
   findActiveDocument,
