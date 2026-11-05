@@ -3,6 +3,11 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.4.0 – 2026-11-05
+
+- Update mit einem Klick: „Jetzt installieren“ lädt die neue Version direkt im Plugin und öffnet sie in Creative Cloud. Kein Umweg über GitHub oder den Download-Ordner mehr.
+- Klappt das auf einem Rechner nicht, startet wie bisher der Download im Browser.
+
 ## 2.3.0 – 2026-11-05
 
 - Update-Hinweis: Beim Start fragt TP Lektor bei GitHub nach einer neueren Version (höchstens alle 6 Stunden). Ist eine da, erscheint oben ein Hinweis mit den Änderungen und dem Button „Herunterladen“. Die .ccx-Datei per Doppelklick öffnen, Creative Cloud ersetzt die alte Version.

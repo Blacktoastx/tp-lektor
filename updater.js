@@ -88,6 +88,32 @@ const openInBrowser = async (url) => {
   await shell.openExternal(url, "TP Lektor öffnet den Download der neuen Version im Browser.");
 };
 
+// Lädt die .ccx in den temporären Ordner und öffnet sie direkt; Creative Cloud fragt dann nach der Installation.
+// Klappt das nicht (fehlende Rechte, ältere InDesign-Version), öffnet sich der Download im Browser.
+const installUpdate = async (latest) => {
+  const url = latest && latest.downloadUrl;
+  if (!url || !/\.ccx$/i.test(url)) {
+    await openInBrowser(url || releasesPageUrl());
+    return "browser";
+  }
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Download fehlgeschlagen (Status ${response.status})`);
+    const data = await response.arrayBuffer();
+    const { storage, shell } = require("uxp");
+    const folder = await storage.localFileSystem.getTemporaryFolder();
+    const file = await folder.createFile(`TP-Lektor-${latest.version}.ccx`, { overwrite: true });
+    await file.write(data, { format: storage.formats.binary });
+    const result = await shell.openPath(file.nativePath, "TP Lektor öffnet das Update zur Installation in Creative Cloud.");
+    if (typeof result === "string" && result !== "") throw new Error(result);
+    return "installer";
+  } catch (error) {
+    console.warn("Direkte Installation nicht möglich, öffne Browser:", error);
+    await openInBrowser(url);
+    return "browser";
+  }
+};
+
 module.exports = {
   checkForUpdate,
   isNewerVersion,
@@ -95,5 +121,6 @@ module.exports = {
   isDismissed,
   dismiss,
   openInBrowser,
+  installUpdate,
   releasesPageUrl,
 };

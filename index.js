@@ -1117,8 +1117,13 @@ const checkForUpdatesNow = async () => {
 };
 
 const downloadUpdate = async () => {
-  const { latest } = updateState;
-  await updater.openInBrowser(latest ? latest.downloadUrl : updater.releasesPageUrl());
+  showNotice("Update wird geladen …");
+  const way = await updater.installUpdate(updateState.latest);
+  if (way === "installer") {
+    showNotice("Creative Cloud installiert das Update. Danach InDesign neu starten.");
+  } else {
+    showNotice("Download im Browser gestartet. Die .ccx-Datei im Download-Ordner doppelklicken.");
+  }
 };
 
 const bindUpdateEvents = () => {
