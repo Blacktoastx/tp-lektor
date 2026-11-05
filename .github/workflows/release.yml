@@ -31,6 +31,8 @@ jobs:
           mkdir -p dist
           zip -r "dist/TP-Lektor-${VERSION}.ccx" . \
             -x ".git/*" ".github/*" "dist/*" ".gitignore" "README.md" "*.DS_Store"
+          # Gleiche Datei mit festem Namen: .../releases/latest/download/TP-Lektor.ccx zeigt immer auf die neueste Version.
+          cp "dist/TP-Lektor-${VERSION}.ccx" dist/TP-Lektor.ccx
 
       - name: Änderungen aus CHANGELOG.md lesen
         run: |
@@ -45,6 +47,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "dist/TP-Lektor-${VERSION}.ccx" \
+          gh release create "$GITHUB_REF_NAME" "dist/TP-Lektor-${VERSION}.ccx" dist/TP-Lektor.ccx \
             --title "TP Lektor ${VERSION}" \
             --notes-file dist/notes.md

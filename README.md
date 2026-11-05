@@ -4,7 +4,7 @@ InDesign-Plugin (UXP) für KI-gestütztes Korrekturlesen: Rechtschreibung und Gr
 
 ## Installieren
 
-1. Unter [Releases](../../releases/latest) die Datei `TP-Lektor-x.y.z.ccx` herunterladen.
+1. **[TP Lektor herunterladen](https://github.com/Blacktoastx/tp-lektor/releases/latest/download/TP-Lektor.ccx)** (immer die neueste Version).
 2. Doppelklick auf die Datei. Creative Cloud installiert das Plugin.
 3. In InDesign: Fenster → Zusatzmodule → TP Lektor.
 
