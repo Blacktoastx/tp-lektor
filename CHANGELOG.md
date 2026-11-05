@@ -3,6 +3,10 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.5.1 – 2026-11-05
+
+- Meldungen wie „… ignoriert“ oder „… neue Fehler gefunden“ stehen jetzt in einer festen Statuszeile unten im Panel statt unter „Dokument prüfen“. Sie bleiben stehen, bis die nächste Meldung kommt, und die Fehlerliste springt nicht mehr.
+
 ## 2.5.0 – 2026-11-05
 
 - Neue Option „Nur Auswahl“ unter Funktionen: geprüft wird nur der markierte Text oder der Text in den ausgewählten Textrahmen (auch in Gruppen und Tabellenzellen). Steht nur der Cursor im Text, gilt der ganze Rahmen. Der Seitenbereich ist dann ausgegraut.

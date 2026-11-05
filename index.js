@@ -97,9 +97,17 @@ const showScreen = (name) => {
 };
 
 const noticeTimers = {};
+// Die Statuszeile unten in der Hauptansicht bleibt stehen, bis die nächste Meldung kommt.
+const STATUS_BAR_ID = "notice";
+
 const showNotice = (message, kind = "info", elementId = "notice") => {
   const notice = $(elementId);
   notice.textContent = message;
+  notice.title = message;
+  if (elementId === STATUS_BAR_ID) {
+    notice.className = `status-bar ${kind}`;
+    return;
+  }
   notice.className = `notice visible ${kind}`;
   clearTimeout(noticeTimers[elementId]);
   if (kind === "info") {
@@ -110,6 +118,11 @@ const showNotice = (message, kind = "info", elementId = "notice") => {
 };
 
 const hideNotice = (elementId = "notice") => {
+  if (elementId === STATUS_BAR_ID) {
+    $(elementId).textContent = "";
+    $(elementId).className = "status-bar";
+    return;
+  }
   $(elementId).className = "notice";
 };
 
