@@ -2,6 +2,7 @@ const { app } = require("indesign");
 const { secureStorage } = require("uxp").storage;
 const { CHECK_KEYS } = require("./checks");
 const { DEFAULT_MODEL, DEFAULT_EFFORT } = require("./models");
+const { DEFAULT_LANGUAGE, isLanguage } = require("./languages");
 
 const API_KEY_STORAGE_KEY = "openaiApiKey";
 const PREFERENCES_STORAGE_KEY = "preferences";
@@ -36,6 +37,7 @@ const loadPreferences = () => {
   return {
     model: stored.model || DEFAULT_MODEL,
     effort: stored.effort || DEFAULT_EFFORT,
+    language: isLanguage(stored.language) ? stored.language : DEFAULT_LANGUAGE,
     userName: stored.userName || inDesignUserName(),
     checks: (stored.checks || ["orthography"]).filter((key) => CHECK_KEYS.includes(key)),
     functionsCollapsed: Boolean(stored.functionsCollapsed),

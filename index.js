@@ -45,6 +45,7 @@ const colors = require("./colors");
 const { renderDictionary } = require("./dictionaryView");
 const dictionary = require("./dictionary");
 const { runDinRules } = require("./dinRules");
+const languages = require("./languages");
 const { computeStats } = require("./stats");
 const updater = require("./updater");
 const { formatPage } = require("./format");
@@ -536,10 +537,12 @@ const removeDashSpaces = (text) => normalizeSpaces(text).replace(/ *– */g, "�
 // Hausregel: Preise wie „45,- €“ behalten den Bindestrich, kein Halbgeviertstrich.
 const changesPriceDash = (raw) => /\d,-/.test(raw.original) && !/\d,-/.test(raw.korrektur);
 
-const contradictsDin5008 = (raw) => {
+// Im Englischen steht der Bis-Strich ohne Leerzeichen; dort darf das Modell sie entfernen.
+const contradictsDin5008 = (raw, language) => {
   if (changesPriceDash(raw)) return true;
   const onlySpaceKindChanged = normalizeSpaces(raw.original) === normalizeSpaces(raw.korrektur);
   const removesDashSpaces =
+    language !== "en" &&
     raw.original.includes("–") &&
     removeDashSpaces(raw.original) === removeDashSpaces(raw.korrektur) &&
     normalizeSpaces(raw.korrektur).length < normalizeSpaces(raw.original).length;
@@ -555,7 +558,7 @@ const verifyFindings = (rawFindings, entriesById, runId, createdAt) => {
     const isValid =
       entry && raw.original && raw.original !== raw.korrektur && entry.text.includes(raw.original);
     const key = `${raw.id}|${raw.original}|${raw.korrektur}`;
-    if (!isValid || seen.has(key) || contradictsDin5008(raw)) continue;
+    if (!isValid || seen.has(key) || contradictsDin5008(raw, entry.language)) continue;
     seen.add(key);
     verified.push({
       id: `${runId}-${raw.id}-${verified.length}`,
@@ -633,6 +636,7 @@ const checkDocument = async () => {
     await wait(50); // UI zeichnen lassen, bevor das Einsammeln den Thread blockiert
     const entries = selectionEntries || collectParagraphs(doc, range);
     if (entries.length === 0) throw new Error("Im gewählten Bereich wurde kein Text gefunden.");
+    languages.assignLanguages(entries, preferences.language);
 
     const runId = String(Date.now());
     const startedAt = new Date().toISOString();
@@ -646,7 +650,7 @@ const checkDocument = async () => {
     let done = 0;
     let rejected = 0;
 
-    // Feste DIN-5008-Regeln laufen lokal und liefern bei gleichem Text immer dasselbe Ergebnis.
+    // Feste Typografie-Regeln (DIN 5008 bzw. englisch) laufen lokal und liefern bei gleichem Text immer dasselbe Ergebnis.
     if (preferences.checks.includes("typography")) {
       found.push(...verifyFindings(runDinRules(entries), entriesById, runId, startedAt));
     }
@@ -659,6 +663,7 @@ const checkDocument = async () => {
         effort: preferences.effort,
         checkKeys: preferences.checks,
         dictionaryTerms: dictionaryTerms.slice(0, 400),
+        language: preferences.language,
         chunk,
       });
       const verified = verifyFindings(result.findings, entriesById, runId, startedAt);
@@ -689,6 +694,7 @@ const checkDocument = async () => {
       model: preferences.model,
       effort: preferences.effort,
       checks: preferences.checks,
+      language: preferences.language,
       range: onlySelection ? { selection: true, paragraphs: entries.length } : range,
       pagesChecked: onlySelection
         ? new Set(entries.map((entry) => entry.pageLabel)).size
@@ -706,6 +712,7 @@ const checkDocument = async () => {
     const log = {
       model: preferences.model,
       effort: preferences.effort,
+      language: preferences.language,
       totalRequests: chunks.length,
       system: systemPrompt,
       exchanges: exchanges.sort((a, b) => a.index - b.index),
@@ -822,7 +829,7 @@ const createOption = (option, isOn, onSelect) => {
   return row;
 };
 
-const settingsDraft = { model: "", effort: "", colors: null };
+const settingsDraft = { model: "", effort: "", language: "", colors: null };
 
 // ---------- Farbeinstellungen ----------
 
@@ -904,6 +911,17 @@ const renderSettingsOptions = () => {
     );
   }
 
+  const languageList = $("languageOptions");
+  languageList.innerHTML = "";
+  for (const option of languages.LANGUAGE_OPTIONS) {
+    languageList.appendChild(
+      createOption(option, settingsDraft.language === option.id, () => {
+        settingsDraft.language = option.id;
+        renderSettingsOptions();
+      })
+    );
+  }
+
   const effortList = $("effortOptions");
   effortList.innerHTML = "";
   for (const option of EFFORT_OPTIONS) {
@@ -929,6 +947,7 @@ const openSettings = () => {
   const preferences = settings.loadPreferences();
   settingsDraft.model = preferences.model;
   settingsDraft.effort = preferences.effort;
+  settingsDraft.language = preferences.language;
   settingsDraft.colors = colors.normalizeColorSettings(preferences.colors);
   const isKnownModel = MODEL_OPTIONS.some((option) => option.id === preferences.model);
   $("settingsName").value = preferences.userName;
@@ -958,6 +977,7 @@ const saveSettings = async () => {
     userName,
     model: customModel || settingsDraft.model,
     effort: settingsDraft.effort,
+    language: settingsDraft.language,
     saveRunLogs: $("settingsSaveLogs").checked,
     colors: settingsDraft.colors,
   });

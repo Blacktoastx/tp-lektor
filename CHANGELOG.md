@@ -3,6 +3,16 @@
 Die Versionsnummer steht in `manifest.json` und wird in den Einstellungen angezeigt.
 Kleine Korrekturen erhöhen die letzte Stelle (2.1.0 → 2.1.1), neue Funktionen die mittlere (2.1.x → 2.2.0).
 
+## 2.6.0 – 2026-11-06
+
+- Neue Einstellung „Sprache des Textes“: Deutsch, Englisch oder Gemischt.
+- Englisch prüft nach englischer Rechtschreibung und Grammatik. Britische und amerikanische Schreibung gelten beide, gemeldet wird nur, was von der im Text überwiegenden Variante abweicht.
+- Englische Typografie-Regeln: “…” statt "…" oder „…“, Bis-Strich ohne Leerzeichen (10–12, 9:00–17:00), Prozent ohne Leerzeichen (25%), Leerzeichen vor Maßeinheiten (5 kg). Dazu Gedankenstrich, Bindestriche bei zusammengesetzten Adjektiven und einheitlicher Oxford Comma über die KI.
+- Lektorat für englische Texte, inklusive Germanismen („make a photo“ → „take a photo“).
+- Gemischt erkennt die Sprache je Absatz und wendet die passenden Regeln an. Kurze Absätze ohne klare Sprache (z. B. Überschriften) folgen der überwiegenden Sprache.
+- Bei Deutsch werden einzelne englische Wörter weiterhin nach englischer Schreibung geprüft, aber nicht eingedeutscht.
+- Die Historie zeigt bei englischen und gemischten Prüfungen die Sprache an. Erklärungen bleiben immer auf Deutsch.
+
 ## 2.5.1 – 2026-11-05
 
 - Meldungen wie „… ignoriert“ oder „… neue Fehler gefunden“ stehen jetzt in einer festen Statuszeile unten im Panel statt unter „Dokument prüfen“. Sie bleiben stehen, bis die nächste Meldung kommt, und die Fehlerliste springt nicht mehr.

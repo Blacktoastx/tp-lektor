@@ -1,4 +1,4 @@
-const { CHECKS, typesFor } = require("./checks");
+const { MIXED_INTRO, promptFor, typesFor } = require("./checks");
 
 const API_BASE = "https://api.openai.com/v1";
 const MAX_ATTEMPTS = 3;
@@ -13,7 +13,7 @@ Allgemeine Regeln:
 - Wenn ein Wort durch den Umbruch auf zwei Absätze verteilt scheint, ignoriere es.
 - "original" muss Zeichen für Zeichen exakt so im Absatz vorkommen. Wähle nur so viel Text, wie nötig ist, damit die Stelle eindeutig ist.
 - "korrektur" ersetzt genau den Text aus "original".
-- "erklaerung" ist ein kurzer Satz auf Deutsch.
+- "korrektur" steht immer in der Sprache des Absatzes. "erklaerung" ist ein kurzer Satz auf Deutsch, auch bei englischem Text.
 - Melde jede Stelle nur einmal, auch wenn sie zu mehreren Bereichen passt.
 - Sonderleerzeichen (geschützt, schmal geschützt, Achtelgeviert, Haarspatium usw.) sind bewusst gesetzt. Ersetze sie nie durch normale Leerzeichen und melde sie nicht.
 - Preise wie „45,- €“ oder „45,-“ sind so gewollt. Ersetze den Bindestrich dort nie durch einen Halbgeviertstrich.
@@ -26,8 +26,13 @@ const buildDictionaryPrompt = (terms) =>
 Folgende Wörter und Schreibweisen sind ausdrücklich korrekt. Melde sie nie als Fehler, auch nicht in Varianten mit anderem Satzzeichen am Rand:
 ${terms.map((term) => `- ${term}`).join("\n")}`;
 
-const buildSystemPrompt = (checkKeys, dictionaryTerms) =>
-  [BASE_PROMPT, ...checkKeys.map((key) => CHECKS[key].prompt), buildDictionaryPrompt(dictionaryTerms)]
+const buildSystemPrompt = (checkKeys, dictionaryTerms, language) =>
+  [
+    BASE_PROMPT,
+    language === "mixed" ? MIXED_INTRO : null,
+    ...checkKeys.map((key) => promptFor(key, language)),
+    buildDictionaryPrompt(dictionaryTerms),
+  ]
     .filter(Boolean)
     .join("\n\n");
 
@@ -58,11 +63,11 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const supportsReasoningEffort = (model) => /^(gpt-5|o\d)/.test(model);
 
-const buildRequestBody = ({ model, effort, checkKeys, dictionaryTerms = [], chunk }) => {
+const buildRequestBody = ({ model, effort, checkKeys, dictionaryTerms = [], language = "de", chunk }) => {
   const body = {
     model,
     messages: [
-      { role: "system", content: buildSystemPrompt(checkKeys, dictionaryTerms) },
+      { role: "system", content: buildSystemPrompt(checkKeys, dictionaryTerms, language) },
       { role: "user", content: chunk.map((entry) => `[${entry.id}] ${entry.text}`).join("\n") },
     ],
     response_format: {

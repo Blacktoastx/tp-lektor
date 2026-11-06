@@ -1,4 +1,5 @@
 const { CHECKS } = require("./checks");
+const { languageLabel } = require("./languages");
 const colors = require("./colors");
 const {
   formatTime,
@@ -319,7 +320,9 @@ const describeRun = (run) => {
   const checkLabels = (run.checks || []).map((key) => CHECKS[key].label).join(", ");
   const hidden = run.hiddenCount > 0 ? ` · ${run.hiddenCount} schon bekannt/ignoriert` : "";
   const cancelled = run.cancelled ? " · abgebrochen" : "";
-  return `${checkLabels} · ${formatRange(run.range)} · ${run.findingsCount} neue Fehler${hidden}${cancelled}`;
+  // Ältere Prüfungen ohne Sprachangabe liefen immer auf Deutsch.
+  const language = run.language && run.language !== "de" ? ` · ${languageLabel(run.language)}` : "";
+  return `${checkLabels}${language} · ${formatRange(run.range)} · ${run.findingsCount} neue Fehler${hidden}${cancelled}`;
 };
 
 const prettyJson = (raw) => {

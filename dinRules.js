@@ -1,5 +1,6 @@
-// Feste Typografie-Regeln nach DIN 5008 (und Satzpraxis bei Q1–Q4). Sie laufen lokal ohne KI und liefern
-// bei gleichem Text immer dasselbe Ergebnis. Regeln mit unsicheren Ausnahmen melden nur einen Hinweis.
+// Feste Typografie-Regeln: deutsch nach DIN 5008, englisch nach üblicher englischer Satzpraxis.
+// Sie laufen lokal ohne KI und liefern bei gleichem Text immer dasselbe Ergebnis.
+// Regeln mit unsicheren Ausnahmen melden nur einen Hinweis.
 
 // Alle Leerzeichen, die InDesign kennt: normal, geschützt, Geviert-Varianten, Achtelgeviert, Haarspatium, schmal geschützt.
 const SPACE = "[ \\u00A0\\u2000-\\u200A\\u202F\\u205F]";
@@ -8,6 +9,9 @@ const NARROW_NBSP = "\u202F"; // schmales geschütztes Leerzeichen
 
 const pad = (value) => String(value).padStart(2, "0");
 const normalizeTime = (hours, minutes) => `${pad(hours)}:${minutes}`;
+
+// Im Englischen stehen Prozent und Währungszeichen ohne Leerzeichen („25%“, „€45“).
+const UNITS_EN = ["kg", "mg", "km", "cm", "mm", "m²", "m³", "ml", "kWh", "kW", "MB", "GB", "TB", "KB", "Hz", "°C", "°F", "EUR", "USD", "CHF", "GBP"];
 
 const UNITS = ["%", "‰", "€", "£", "\\$", "°C", "°F", "kg", "mg", "km", "cm", "mm", "m²", "m³", "ml", "kWh", "kW", "MB", "GB", "TB", "KB", "Hz", "EUR", "USD", "CHF"];
 
@@ -30,7 +34,8 @@ const hasPhoneContext = (match) =>
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Jede Regel: id, hint (nur Hinweis?), pattern (global), fix(match) → Korrektur oder null, erklaerung.
+// Jede Regel: id, hint (nur Hinweis?), pattern (global), fix(match) → Korrektur oder null, erklaerung,
+// language ("de", "en" oder ohne Angabe = beide Sprachen; deutsche Regeln stehen in GERMAN_RULE_IDS).
 // "original" ist immer der komplette Treffer, damit er exakt im Absatz vorkommt.
 const RULES = [
   {
@@ -46,6 +51,14 @@ const RULES = [
     pattern: new RegExp(`(?<![\\d:.])(\\d{1,2})[:.](\\d{2})${SPACE}*[-–]${SPACE}*(\\d{1,2})[:.](\\d{2})(?![\\d])`, "g"),
     fix: (m) => `${normalizeTime(m[1], m[2])}${NBSP}– ${normalizeTime(m[3], m[4])}`,
     erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt), Uhrzeiten zweistellig mit Doppelpunkt.",
+  },
+  {
+    id: "S2en",
+    language: "en",
+    hint: false,
+    pattern: new RegExp(`(?<![\\d:.])(\\d{1,2}):(\\d{2})${SPACE}*[-–]${SPACE}*(\\d{1,2}):(\\d{2})(?![\\d])`, "g"),
+    fix: (m) => `${m[1]}:${m[2]}–${m[3]}:${m[4]}`,
+    erklaerung: "Englische Typografie: Bis-Strich als Halbgeviertstrich ohne Leerzeichen (9:00–17:00).",
   },
   {
     id: "S2",
@@ -90,18 +103,34 @@ const RULES = [
     erklaerung: "DIN 5008: Zwischen Zahl und Einheit oder Zeichen steht ein geschütztes Leerzeichen.",
   },
   {
+    id: "E1en",
+    language: "en",
+    hint: false,
+    pattern: new RegExp(`${NUMBER}(${UNITS_EN.join("|")})(?![\\p{L}\\d])`, "gu"),
+    fix: (m) => `${m[1]}${NBSP}${m[2]}`,
+    erklaerung: "Englische Typografie: Zwischen Zahl und Maßeinheit steht ein (geschütztes) Leerzeichen (5 kg).",
+  },
+  {
+    id: "E2en",
+    language: "en",
+    hint: false,
+    pattern: new RegExp(`${NUMBER}${SPACE}+(%|‰)`, "g"),
+    fix: (m) => `${m[1]}${m[2]}`,
+    erklaerung: "Englische Typografie: Prozentzeichen ohne Leerzeichen (25%).",
+  },
+  {
     id: "E3",
     hint: false,
     pattern: new RegExp(`${NUMBER}${SPACE}+°(?![CF])`, "g"),
     fix: (m) => `${m[1]}°`,
-    erklaerung: "DIN 5008: Winkelgrade ohne Leerzeichen (90°), Temperaturen mit Leerzeichen (20 °C).",
+    erklaerung: "Winkelgrade ohne Leerzeichen (90°), Temperaturen mit Leerzeichen (20 °C).",
   },
   {
     id: "E4",
     hint: false,
     pattern: /(§§?)(\d)/g,
     fix: (m) => `${m[1]}${NBSP}${m[2]}`,
-    erklaerung: "DIN 5008: Zwischen Paragrafenzeichen und Zahl steht ein geschütztes Leerzeichen.",
+    erklaerung: "Zwischen Paragrafenzeichen und Zahl steht ein geschütztes Leerzeichen.",
   },
   ...ABBREVIATIONS.map((parts) => ({
     id: "A1",
@@ -146,6 +175,14 @@ const RULES = [
     erklaerung: "DIN 5008: Bis-Strich als Halbgeviertstrich mit Leerzeichen (davor geschützt). Bitte prüfen, ob es keine Nummer (z. B. Durchwahl) ist.",
   },
   {
+    id: "S3en",
+    language: "en",
+    hint: true,
+    pattern: new RegExp(`(?<![\\d\\/.,\\-–])(\\d{1,4})${SPACE}?[-–]${SPACE}?(\\d{1,4})(?![\\d\\-–]|[.,]\\d)`, "g"),
+    fix: (m) => `${m[1]}–${m[2]}`,
+    erklaerung: "Englische Typografie: Bis-Strich als Halbgeviertstrich ohne Leerzeichen (10–12). Bitte prüfen, ob es keine Nummer ist.",
+  },
+  {
     id: "Q1",
     hint: false,
     pattern: /"([^"\r\n]{1,200})"/g,
@@ -158,6 +195,22 @@ const RULES = [
     pattern: /“([^“”„\r\n]{1,200})”/g,
     fix: (m) => `„${m[1]}“`,
     erklaerung: "Satzpraxis: Deutsche Anführungszeichen „…“ statt englischer “…”.",
+  },
+  {
+    id: "Q0en",
+    language: "en",
+    hint: false,
+    pattern: /"([^"\r\n]{1,200})"/g,
+    fix: (m) => `“${m[1]}”`,
+    erklaerung: "Englische Typografie: Typografische Anführungszeichen “…”.",
+  },
+  {
+    id: "Q1en",
+    language: "en",
+    hint: false,
+    pattern: /„([^„“”\r\n]{1,200})[“”]/g,
+    fix: (m) => `“${m[1]}”`,
+    erklaerung: "Englische Typografie: Englische Anführungszeichen “…” statt deutscher „…“.",
   },
   {
     id: "Q2",
@@ -188,27 +241,43 @@ const RULES = [
     erklaerung: "DIN 5008: Gedankenstrich als Halbgeviertstrich (–) mit Leerzeichen, davor geschützt, damit keine Zeile mit dem Strich beginnt.",
   },
   {
+    id: "S1en",
+    language: "en",
+    hint: false,
+    pattern: /(\S+) - (\S+)/g,
+    fix: (m) => `${m[1]}${NBSP}– ${m[2]}`,
+    erklaerung: "Englische Typografie: Gedankenstrich statt Bindestrich, hier als Halbgeviertstrich mit Leerzeichen (davor geschützt).",
+  },
+  {
     id: "L1",
     hint: false,
     pattern: /(\S+) {2,}(\S+)/g,
     fix: (m) => `${m[1]} ${m[2]}`,
-    erklaerung: "DIN 5008: Kein doppeltes Leerzeichen.",
+    erklaerung: "Kein doppeltes Leerzeichen.",
   },
   {
     id: "L2",
     hint: false,
     pattern: new RegExp(`(\\S+)${SPACE}+([,;:!?]|\\.(?!\\.))(?!\\d)`, "g"),
     fix: (m) => `${m[1]}${m[2]}`,
-    erklaerung: "DIN 5008: Kein Leerzeichen vor einem Satzzeichen.",
+    erklaerung: "Kein Leerzeichen vor einem Satzzeichen.",
   },
   {
     id: "L3",
     hint: true,
     pattern: /(\p{Ll}{2,})([,;!?])(\p{L}{2,})/gu,
     fix: (m) => `${m[1]}${m[2]} ${m[3]}`,
-    erklaerung: "DIN 5008: Nach einem Satzzeichen folgt ein Leerzeichen. Bitte prüfen, ob es kein Fachbegriff oder Code ist.",
+    erklaerung: "Nach einem Satzzeichen folgt ein Leerzeichen. Bitte prüfen, ob es kein Fachbegriff oder Code ist.",
   },
 ];
+
+// Diese Regeln gelten nur für deutschen Text (DIN 5008 und deutsche Anführungszeichen).
+const GERMAN_RULE_IDS = new Set(["S4", "S2", "U1", "D1", "D2", "E2", "E1", "A1", "T1", "T2", "T3", "S3", "Q1", "S1"]);
+for (const rule of RULES) {
+  if (!rule.language && GERMAN_RULE_IDS.has(rule.id)) rule.language = "de";
+}
+
+const appliesTo = (rule, language) => !rule.language || rule.language === language;
 
 const overlaps = (ranges, start, end) => ranges.some(([from, to]) => start < to && end > from);
 
@@ -217,6 +286,7 @@ const checkParagraph = (entry) => {
   const findings = [];
   const covered = [];
   for (const rule of RULES) {
+    if (!appliesTo(rule, entry.language || "de")) continue;
     rule.pattern.lastIndex = 0;
     for (const match of entry.text.matchAll(rule.pattern)) {
       const start = match.index;
@@ -285,6 +355,10 @@ const checkConsistency = (entries) => [
   ),
 ];
 
-const runDinRules = (entries) => [...entries.flatMap(checkParagraph), ...checkConsistency(entries)];
+// Die Einheitlichkeitsregeln (Datum mit Punkten, „Uhr“) betreffen nur deutsche Absätze.
+const runDinRules = (entries) => [
+  ...entries.flatMap(checkParagraph),
+  ...checkConsistency(entries.filter((entry) => (entry.language || "de") === "de")),
+];
 
 module.exports = { runDinRules, RULES };

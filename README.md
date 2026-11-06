@@ -12,6 +12,7 @@ InDesign-Plugin (UXP) für KI-gestütztes Korrekturlesen: Rechtschreibung und Gr
 ## Funktionen
 
 - **Prüft** Rechtschreibung, Grammatik, Typografie nach DIN 5008 und macht Lektoratsvorschläge.
+- **Deutsch, Englisch oder gemischt:** Rechtschreibung und Typografie-Regeln passend zur Sprache. Englische Begriffe in deutschen Texten werden mitgeprüft.
 - **Wahlweise** das ganze Dokument, einen Seitenbereich oder nur die Auswahl.
 - **Fehlerliste nach Seiten:** Anzeigen, Übernehmen, Ignorieren oder ins Wörterbuch aufnehmen, auch einzeln in einer kompakten Ansicht.
 - **Prüfstand und Historie im Dokument:** Wer die Datei öffnet, sieht denselben Stand. Mehrere Benutzer werden unterstützt und im Verlauf angezeigt.
