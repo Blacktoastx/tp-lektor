@@ -11,15 +11,3 @@ InDesign-Plugin (UXP) für KI-gestütztes Korrekturlesen: Rechtschreibung und Gr
 3. In InDesign: Fenster → Zusatzmodule → TP Lektor.
 
 Neue Versionen meldet das Plugin selbst. Installiert wird ein Update genauso per Doppelklick auf die neue `.ccx`.
-
-## Neue Version veröffentlichen
-
-1. Version in `manifest.json` erhöhen und `CHANGELOG.md` ergänzen.
-2. Committen, Tag setzen und pushen:
-
-   ```bash
-   git tag v2.3.0
-   git push origin main --tags
-   ```
-
-GitHub Actions baut daraus die `.ccx` und legt das Release mit den Änderungen aus dem Changelog an.
