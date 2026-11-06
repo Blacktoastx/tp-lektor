@@ -1,5 +1,7 @@
 # TP Lektor
 
+[![Downloads](https://img.shields.io/github/downloads/Blacktoastx/tp-lektor/total?label=Downloads)](https://github.com/Blacktoastx/tp-lektor/releases)
+
 InDesign-Plugin (UXP) für KI-gestütztes Korrekturlesen: Rechtschreibung und Grammatik, Typografie nach DIN 5008 und Lektorat. Die Prüfung läuft über die OpenAI-API mit dem eigenen API-Key, der verschlüsselt auf dem jeweiligen Rechner gespeichert wird.
 
 ## Installieren
