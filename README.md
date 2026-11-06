@@ -1,4 +1,9 @@
-# TP Lektor
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="icons/logo.svg">
+    <img src="icons/light/logo.svg" alt="TP Lektor" width="260">
+  </picture>
+</h1>
 
 [![Downloads](https://img.shields.io/github/downloads/Blacktoastx/tp-lektor/total?label=Downloads)](https://github.com/Blacktoastx/tp-lektor/releases)
 
